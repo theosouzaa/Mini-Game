@@ -1,4 +1,4 @@
-const N = 9, MAXH = 7, TW = 72, TH = 36, FH = 28, BLOCOS = 20, BONUS = 6;
+const N = 19, MAXH = 7, TW = 72, TH = 36, FH = 28, BLOCOS = 20, BONUS = 6;
 const W = N * TW + 40, H = N * TH + MAXH * FH + 70, OX = W / 2, OY = MAXH * FH + 28;
 const CORES = ["#f2b5a7", "#f6d58b", "#b9ddc4", "#a8cbe8", "#e6c2dd", "#f1c59a", "#d4e3a0", "#f2a9b6"];
 const CORES_ACESSIVEIS = ["#e69f00", "#56b4e9", "#009e73", "#f0e442", "#0072b2", "#d55e00", "#cc79a7", "#666666"];
@@ -33,8 +33,9 @@ const dpr = Math.min(window.devicePixelRatio || 1, 2);
 cv.width = W * dpr; cv.height = H * dpr;
 ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
-let grade, pts, blocos, qi, hist, som = true, demo = false, over = true, hov = -1, floats = [], ac;
-let selected = Math.floor(N / 2) * N + Math.floor(N / 2), keyboardNav = false;
+let grade, pts, blocos, qi, hist, som = true, demo = false, bridgeMode = false, over = true, hov = -1, floats = [], ac;
+let selected = Math.floor(N / 2) * N + Math.floor(N / 2), keyboardNav = false, cameraDegrees = 0, selectedModel = 0;
+const MODELOS = ["Clássica", "Torre", "Chalé", "Varanda", "Sótão", "Jardim", "Pátio", "Pavilhão"];
 const PREFERENCIAS_PADRAO = {
   sound: true,
   motion: !window.matchMedia("(prefers-reduced-motion: reduce)").matches,
@@ -42,7 +43,8 @@ const PREFERENCIAS_PADRAO = {
   large: false,
   volume: 70,
   autosave: true,
-  colorSafe: false
+  colorSafe: false,
+  creative: false
 };
 let preferencias = carregarPreferencias();
 
@@ -75,6 +77,8 @@ function aplicarPreferencias() {
   $("volumeValue").value = preferencias.volume + "%";
   $("settingAutosave").checked = preferencias.autosave;
   $("settingColorSafe").checked = preferencias.colorSafe;
+  $("settingCreative").checked = preferencias.creative;
+  $("blocos").textContent = preferencias.creative ? "∞" : blocos;
   syncSoundButton();
   atualizarBotaoContinuar();
 }
@@ -93,17 +97,26 @@ function restaurarPreferencias() {
 function lerProgresso() {
   try {
     const save = JSON.parse(localStorage.getItem("ilheu-save") || "null");
-    if (!save || !Array.isArray(save.grade) || save.grade.length !== N * N) return null;
+    if (!save || !Array.isArray(save.grade) || ![9 * 9, 15 * 15, N * N].includes(save.grade.length)) return null;
     if (!Number.isInteger(save.qi) || save.qi < 0 || save.qi >= QUESTS.length) return null;
     if (!Number.isInteger(save.pts) || save.pts < 0 || !Number.isInteger(save.blocos) || save.blocos < 0) return null;
-    const cells = save.grade.map(cell => {
+    const oldSize = Math.sqrt(save.grade.length), padding = Math.floor((N - oldSize) / 2);
+    const sourceCells = save.grade.length === N * N
+      ? save.grade
+      : Array.from({ length: N * N }, (_, index) => {
+        const x = index % N - padding, y = Math.floor(index / N) - padding;
+        return x >= 0 && y >= 0 && x < oldSize && y < oldSize ? save.grade[y * oldSize + x] : null;
+      });
+    const cells = sourceCells.map(cell => {
+      if (cell === null) return { h: 0, c: 0, t: 0, r: 0, born: 0, bridge: false };
       if (!cell || !Number.isInteger(cell.h) || cell.h < 0 || cell.h > MAXH) return null;
       if (!Number.isInteger(cell.c) || cell.c < 0 || cell.c >= CORES.length) return null;
       if (!Number.isInteger(cell.t) || cell.t < 0 || cell.t >= TELHAS.length) return null;
-      if (!Number.isInteger(cell.r) || cell.r < 0 || cell.r >= 6) return null;
-      return { h: cell.h, c: cell.c, t: cell.t, r: cell.r, born: 0 };
+      if (!Number.isInteger(cell.r) || cell.r < 0 || cell.r >= 8) return null;
+      return { h: cell.h, c: cell.c, t: cell.t, r: cell.r, bridge: !!cell.bridge, born: 0 };
     });
-    return cells.includes(null) ? null : { grade: cells, qi: save.qi, pts: save.pts, blocos: save.blocos };
+    const oldRotation = Number(save.rotation) || 0;
+    return cells.includes(null) ? null : { grade: cells, qi: save.qi, pts: save.pts, blocos: save.blocos, rotation: ((oldRotation <= 3 ? oldRotation * 90 : oldRotation) % 360 + 360) % 360 };
   } catch (e) {
     return null;
   }
@@ -123,7 +136,7 @@ function salvarProgresso() {
   }
   try {
     localStorage.setItem("ilheu-save", JSON.stringify({
-      grade: grade.map(({ h, c, t, r }) => ({ h, c, t, r })), pts, blocos, qi
+      grade: grade.map(({ h, c, t, r, bridge }) => ({ h, c, t, r, bridge: !!bridge })), pts, blocos, qi, rotation: cameraDegrees
     }));
   } catch (e) { }
   atualizarBotaoContinuar();
@@ -141,7 +154,23 @@ function fecharConfiguracoes() {
   if (destino && destino.isConnected) requestAnimationFrame(() => destino.focus());
 }
 
-const P = (x, y, z) => [OX + (x - y) * TW / 2, OY + (x + y) * TH / 2 - z * FH];
+function pontoVista(x, y) {
+  const center = (N - 1) / 2, dx = x - center, dy = y - center, angle = cameraDegrees * Math.PI / 180;
+  return [center + dx * Math.cos(angle) - dy * Math.sin(angle), center + dx * Math.sin(angle) + dy * Math.cos(angle)];
+}
+function pontoMundo(x, y) {
+  const center = (N - 1) / 2, dx = x - center, dy = y - center, angle = cameraDegrees * Math.PI / 180;
+  return [center + dx * Math.cos(angle) + dy * Math.sin(angle), center - dx * Math.sin(angle) + dy * Math.cos(angle)];
+}
+const P = (x, y, z) => {
+  const [viewX, viewY] = pontoVista(x, y);
+  return [OX + (viewX - viewY) * TW / 2, OY + (viewX + viewY) * TH / 2 - z * FH];
+};
+function ordemProfundidade(descending = false) {
+  return grade.map((_, i) => ({ i, point: pontoVista(i % N + .5, Math.floor(i / N) + .5) }))
+    .sort((a, b) => (a.point[0] + a.point[1] - b.point[0] - b.point[1]) * (descending ? -1 : 1))
+    .map(item => item.i);
+}
 const sh = (hex, factor) => {
   const color = parseInt(hex.slice(1), 16);
   return "rgb(" + Math.min(255, (color >> 16) * factor | 0) + "," + Math.min(255, (color >> 8 & 255) * factor | 0) + "," + Math.min(255, (color & 255) * factor | 0) + ")";
@@ -234,9 +263,30 @@ function parede(f, col, fac, f0, hz, x, y, shut) {
   }
 }
 
+function linha(a, b, color, width = 1) {
+  ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]);
+  ctx.strokeStyle = color; ctx.lineWidth = width; ctx.stroke();
+}
+function desenharPonte(x, y) {
+  const z = .2, a = P(x, y, z), b = P(x + 1, y, z), c = P(x + 1, y + 1, z), d = P(x, y + 1, z);
+  poly([a, b, c, d], "#b7834e", "#765333");
+  for (let plank = 1; plank < 5; plank++) {
+    const t = plank / 5;
+    linha(P(x + t, y, z + .01), P(x + t, y + 1, z + .01), "rgba(82,53,34,.45)");
+  }
+  const railHeight = .28;
+  [[x, y, x + 1, y, a, b], [x, y + 1, x + 1, y + 1, d, c]].forEach(([x0, y0, x1, y1, start, end]) => {
+    const raisedStart = P(x0, y0, z + railHeight), raisedEnd = P(x1, y1, z + railHeight);
+    linha(start, raisedStart, "#65452f", 1.5); linha(raisedStart, raisedEnd, "#65452f", 1.5); linha(raisedEnd, end, "#65452f", 1.5);
+  });
+}
+
 function celula(x, y, now) {
   const c = grade[y * N + x];
-  if (!c.h) return;
+  if (!c.h) {
+    if (c.bridge) desenharPonte(x, y);
+    return;
+  }
   const elapsed = preferencias.motion ? (now - c.born) / 380 : 1;
   const e = Math.min(1, elapsed);
   const eb = e >= 1 ? 1 : 1 + 2.7 * Math.pow(e - 1, 3) + 1.7 * Math.pow(e - 1, 2);
@@ -251,7 +301,7 @@ function celula(x, y, now) {
   if (nl < hz) parede(fl, col, .98, nl, hz, x, y, shut);
   if (nr < hz) parede(fr, col, .8, nr, hz, x, y, shut);
   const type = c.r % 6;
-  if (type === 1 || type === 3 || type === 5) {
+  if (type === 1 || type === 3 || type === 5 || type === 6 || type === 7) {
     poly([P(x, y, hz), P(x + 1, y, hz), P(x + 1, y + 1, hz), P(x, y + 1, hz)], "#ece3d1", "rgba(0,0,0,.1)");
     poly([P(x, y + 1, hz), P(x + 1, y + 1, hz), P(x + 1, y + 1, hz + .22), P(x, y + 1, hz + .22)], sh(col, 1.05));
     poly([P(x + 1, y + 1, hz), P(x + 1, y, hz), P(x + 1, y, hz + .22), P(x + 1, y + 1, hz + .22)], sh(col, .85));
@@ -265,9 +315,16 @@ function celula(x, y, now) {
       poly([P(x + .33, y + .26, hz + .05), P(x + .33, y + .56, hz + .05)], null, "#c9e6d9");
       const antenna = P(x + .76, y + .3, hz + .22);
       ctx.strokeStyle = "#6b5a4a"; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(...antenna); ctx.lineTo(antenna[0], antenna[1] - 13); ctx.stroke();
-    } else {
+    } else if (type === 5) {
       box(x + .15, y + .22, .34, hz + .08, hz + .24, "#78966b");
       box(x + .57, y + .5, .2, hz + .08, hz + .2, "#a2ad72");
+    } else if (type === 6) {
+      poly([P(x + .12, y + .18, hz + .06), P(x + .42, y + .18, hz + .06), P(x + .42, y + .48, hz + .06), P(x + .12, y + .48, hz + .06)], "#b9d1c1", "#fff8df");
+      poly([P(x + .58, y + .5, hz + .06), P(x + .84, y + .5, hz + .06), P(x + .84, y + .76, hz + .06), P(x + .58, y + .76, hz + .06)], "#d2b778", "#fff8df");
+    } else {
+      box(x + .16, y + .18, .24, hz + .08, hz + .22, "#628767");
+      box(x + .58, y + .56, .24, hz + .08, hz + .22, "#628767");
+      linha(P(x + .28, y + .25, hz + .24), P(x + .7, y + .63, hz + .24), "#55805f", 2);
     }
   } else {
     const q = beirais(x, y, type);
@@ -309,7 +366,7 @@ function desenhar(now) {
     const x = i % N, y = Math.floor(i / N), s = .3 + .04 * Math.sin(animationTime / 500 + i);
     poly([P(x - s, y - s, 0), P(x + 1 + s, y - s, 0), P(x + 1 + s, y + 1 + s, 0), P(x - s, y + 1 + s, 0)], "rgba(255,255,255,.25)");
   });
-  for (let s = 0; s <= 2 * N - 2; s++) for (let x = 0; x < N; x++) { const y = s - x; if (y >= 0 && y < N) celula(x, y, animationTime); }
+  ordemProfundidade().forEach(i => celula(i % N, Math.floor(i / N), animationTime));
   if ((hov >= 0 || keyboardNav) && !over) {
     const i = keyboardNav ? selected : hov;
     const x = i % N, y = Math.floor(i / N), h = grade[i].h;
@@ -358,15 +415,18 @@ function viz(i) {
   return n;
 }
 function stats() {
-  let cs = 0, fl = 0, mx = 0, big = 0, towers = 0; const seen = new Set();
-  grade.forEach(c => { if (c.h) { cs++; fl += c.h; mx = Math.max(mx, c.h); if (c.h >= 4) towers++; } });
+  let cs = 0, fl = 0, mx = 0, big = 0, towers = 0, bridges = 0; const seen = new Set();
+  grade.forEach(c => { if (c.h) { cs++; fl += c.h; mx = Math.max(mx, c.h); if (c.h >= 4) towers++; } if (c.bridge) bridges++; });
   grade.forEach((c, i) => {
     if (!c.h || seen.has(i)) return;
-    const q = [i]; let n = 0; seen.add(i);
-    while (q.length) { const a = q.pop(); n++; viz(a).forEach(b => { if (grade[b].h && !seen.has(b)) { seen.add(b); q.push(b); } }); }
-    big = Math.max(big, n);
+    const q = [i]; let houses = 0; seen.add(i);
+    while (q.length) {
+      const a = q.pop(); if (grade[a].h) houses++;
+      viz(a).forEach(b => { if ((grade[b].h || grade[b].bridge) && !seen.has(b)) { seen.add(b); q.push(b); } });
+    }
+    big = Math.max(big, houses);
   });
-  return { cs, fl, mx, big, towers };
+  return { cs, fl, mx, big, towers, bridges };
 }
 function aviso(t) {
   const e = $("toast"); e.textContent = t; e.classList.remove("show"); void e.offsetWidth; e.classList.add("show");
@@ -378,13 +438,13 @@ function syncSoundButton() {
   button.setAttribute("aria-pressed", String(som));
 }
 function salvar() {
-  hist.push({ g: grade.map(c => [c.h, c.c, c.t, c.r]), pts, blocos, qi });
+  hist.push({ g: grade.map(c => [c.h, c.c, c.t, c.r, !!c.bridge]), pts, blocos, qi });
   if (hist.length > 30) hist.shift();
 }
 function desfazer() {
   if (over || !hist.length) return;
   const u = hist.pop();
-  u.g.forEach((a, i) => { grade[i].h = a[0]; grade[i].c = a[1]; grade[i].t = a[2]; grade[i].r = a[3]; grade[i].born = 0; });
+  u.g.forEach((a, i) => { grade[i].h = a[0]; grade[i].c = a[1]; grade[i].t = a[2]; grade[i].r = a[3]; grade[i].bridge = !!a[4]; grade[i].born = 0; });
   pts = u.pts; blocos = u.blocos; qi = u.qi;
   bip(260, .15); hud(); salvarProgresso();
 }
@@ -393,12 +453,18 @@ function iniciar(retomar = false) {
   const save = retomar ? lerProgresso() : null;
   if (retomar && !save) return iniciar(false);
   if (!retomar) apagarProgresso();
-  grade = Array.from({ length: N * N }, () => ({ h: 0, c: 0, t: 0, r: 0, born: 0 }));
-  pts = 0; blocos = BLOCOS; qi = 0; hist = []; floats = []; over = false; demo = false;
+  grade = Array.from({ length: N * N }, () => ({ h: 0, c: 0, t: 0, r: 0, bridge: false, born: 0 }));
+  pts = 0; blocos = BLOCOS; qi = 0; hist = []; floats = []; over = false; demo = false; bridgeMode = false;
+  cameraDegrees = save ? save.rotation : 0;
+  if ($("mapSize")) $("mapSize").textContent = N + " × " + N;
+  cv.setAttribute("aria-label", "Tabuleiro expansivo de " + N + " por " + N + " células. Use as setas para navegar e Enter para construir. Pressione Shift e use a roda do mouse para girar a câmera.");
+  cv.setAttribute("aria-keyshortcuts", "ArrowUp ArrowDown ArrowLeft ArrowRight Enter Space D Z M Q E");
   if (save) { grade = save.grade; pts = save.pts; blocos = save.blocos; qi = save.qi; }
+  $("bBuild").classList.add("on"); $("bBridge").classList.remove("on"); $("bDemo").classList.remove("on");
+  $("bBuild").setAttribute("aria-pressed", "true"); $("bBridge").setAttribute("aria-pressed", "false"); $("bDemo").setAttribute("aria-pressed", "false");
+  atualizarDirecaoCamera();
+  $("tip").textContent = "Construa e conecte casas · Ponte para ligar margens · M muda o modelo · Q/E ou Shift + roda do mouse gira a câmera · Z desfaz";
   selected = Math.floor(N / 2) * N + Math.floor(N / 2); keyboardNav = false;
-  $("bBuild").classList.add("on"); $("bDemo").classList.remove("on");
-  $("bBuild").setAttribute("aria-pressed", "true"); $("bDemo").setAttribute("aria-pressed", "false");
   syncSoundButton();
   hud(); tela("jogo"); cv.focus(); atualizarBotaoContinuar();
   anunciarSelecao();
@@ -411,21 +477,29 @@ function agir(i, dem) {
   if (over || i < 0) return;
   const c = grade[i], x = i % N, y = Math.floor(i / N);
   if (dem) {
-    if (!c.h) return;
-    salvar(); c.h--; blocos++; pts = Math.max(0, pts - 5); bip(200, .18);
-    if (preferencias.motion) floats.push({ x, y, z: c.h + 1, s: "-5", t: performance.now() });
+    if (!c.h && !c.bridge) return;
+    salvar();
+    if (c.bridge) { c.bridge = false; if (!preferencias.creative) blocos++; }
+    else { c.h--; if (!preferencias.creative) blocos++; pts = Math.max(0, pts - 5); }
+    bip(200, .18);
+    if (preferencias.motion) floats.push({ x, y, z: c.h + .5, s: c.bridge ? "-Ponte" : "-5", t: performance.now() });
+  } else if (bridgeMode) {
+    if (c.h || c.bridge || (!preferencias.creative && blocos <= 0)) return;
+    salvar(); c.bridge = true;
+    if (!preferencias.creative) blocos--;
+    pts += 4; bip(460, .16);
   } else {
-    if (blocos <= 0 || c.h >= MAXH) return;
+    if (c.bridge || (!preferencias.creative && blocos <= 0) || c.h >= MAXH) return;
     salvar(); let ganho;
     if (c.h === 0) {
       const vs = viz(i).filter(v => grade[v].h > 0), us = vs.map(v => grade[v].c);
       const livres = CORES.map((_, k) => k).filter(k => !us.includes(k));
       c.c = livres[Math.floor(Math.random() * livres.length)];
       c.t = Math.floor(Math.random() * TELHAS.length);
-      c.r = Math.floor(Math.random() * 6);
+      c.r = selectedModel;
       ganho = 10 + 5 * vs.length;
     } else ganho = 5 + 3 * c.h;
-    pts += ganho; c.h++; blocos--; c.born = preferencias.motion ? performance.now() : 0;
+    pts += ganho; c.h++; if (!preferencias.creative) blocos--; c.born = preferencias.motion ? performance.now() : 0;
     if (preferencias.motion) floats.push({ x, y, z: c.h + 1.2, s: "+" + ganho, t: c.born });
     bip(330 + c.h * 90, .22);
   }
@@ -440,7 +514,7 @@ function verificar() {
   }
   hud();
   if (qi >= QUESTS.length) { over = true; setTimeout(() => fim(true), 1400); }
-  else if (blocos === 0) { over = true; setTimeout(() => fim(false), 900); }
+  else if (blocos === 0 && !preferencias.creative) { over = true; setTimeout(() => fim(false), 900); }
 }
 function fim(vitoria) {
   apagarProgresso();
@@ -457,7 +531,7 @@ function fim(vitoria) {
 }
 function hud() {
   const s = stats();
-  $("pts").textContent = pts; $("blocos").textContent = blocos; $("casas").textContent = s.cs;
+  $("pts").textContent = pts; $("blocos").textContent = preferencias.creative ? "∞" : blocos; $("casas").textContent = s.cs;
   const q = QUESTS[Math.min(qi, QUESTS.length - 1)], v = Math.min(q.n, s[q.k]);
   $("qn").textContent = "Pedido " + Math.min(qi + 1, QUESTS.length) + "/" + QUESTS.length;
   $("qtxt").textContent = q.t; $("qnum").textContent = v + " / " + q.n;
@@ -467,21 +541,77 @@ function hud() {
 }
 function anunciarSelecao() {
   const x = selected % N, y = Math.floor(selected / N), c = grade[selected];
-  const estado = c.h ? c.h + (c.h === 1 ? " andar" : " andares") : "área livre";
-  $("gameStatus").textContent = "Linha " + (y + 1) + ", coluna " + (x + 1) + ", " + estado + ". Modo " + (demo ? "demolir" : "construir") + ".";
+  const estado = c.bridge ? "ponte" : c.h ? c.h + (c.h === 1 ? " andar" : " andares") : "área livre";
+  const modeName = demo ? "demolir" : bridgeMode ? "construir ponte" : "construir";
+  $("gameStatus").textContent = "Linha " + (y + 1) + ", coluna " + (x + 1) + ", " + estado + ". Modo " + modeName + ".";
 }
 
-function modo(d) {
-  demo = d;
-  $("bBuild").classList.toggle("on", !d); $("bDemo").classList.toggle("on", d);
-  $("bBuild").setAttribute("aria-pressed", String(!d)); $("bDemo").setAttribute("aria-pressed", String(d));
+function atualizarDirecaoCamera() {
+  const angle = ((Math.round(cameraDegrees) % 360) + 360) % 360;
+  $("cameraDirection").textContent = "Vista " + angle + "°";
+}
+function girarCamera(turns) {
+  cameraDegrees = (cameraDegrees + turns * 15 + 360) % 360;
+  atualizarDirecaoCamera();
+  salvarProgresso();
+}
+function modo(value) {
+  demo = value === true;
+  bridgeMode = value === "bridge";
+  $("bBuild").classList.toggle("on", !demo && !bridgeMode);
+  $("bBridge").classList.toggle("on", bridgeMode);
+  $("bDemo").classList.toggle("on", demo);
+  $("bBuild").setAttribute("aria-pressed", String(!demo && !bridgeMode));
+  $("bBridge").setAttribute("aria-pressed", String(bridgeMode));
+  $("bDemo").setAttribute("aria-pressed", String(demo));
   anunciarSelecao();
+}
+
+function prepararControlesCriativos() {
+  const toolbar = document.querySelector("#jogo .tools");
+  if (!toolbar) return;
+  const ponteAntiga = $("bBridge");
+  if (ponteAntiga) ponteAntiga.remove();
+  const ponte = document.createElement("button");
+  ponte.type = "button"; ponte.id = "bBridge"; ponte.className = "tool";
+  ponte.setAttribute("aria-pressed", "false");
+  ponte.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 16c3-8 15-8 18 0M4 17h16M6 13l-2-2m6-2-1-3m7 3 1-3m1 7 3-2M8 16v3m8-3v3"/></svg><span>Ponte</span>';
+  toolbar.insertBefore(ponte, $("bDemo"));
+
+  const picker = document.createElement("label");
+  picker.className = "model-picker";
+  picker.innerHTML = '<span>Modelo</span><select id="modelPicker" aria-label="Modelo da próxima construção"></select>';
+  const select = picker.querySelector("select");
+  MODELOS.forEach((nome, index) => select.add(new Option(nome, String(index))));
+  select.value = String(selectedModel);
+  select.addEventListener("change", () => {
+    selectedModel = Number(select.value);
+    aviso("Próxima construção: " + MODELOS[selectedModel]);
+  });
+  toolbar.insertBefore(picker, $("btnSettingsGame"));
+
+  const oldCamera = $("mapControls");
+  if (oldCamera) oldCamera.remove();
+  const camera = document.createElement("div");
+  camera.className = "map-controls"; camera.id = "mapControls";
+  camera.setAttribute("role", "group"); camera.setAttribute("aria-label", "Controles da câmera");
+  camera.innerHTML = '<span class="map-size">Mapa <b id="mapSize">' + N + ' × ' + N + '</b></span><span class="camera-direction" id="cameraDirection" aria-live="polite">Vista 0°</span><button class="tool camera-tool" id="bRotateLeft" type="button" aria-label="Girar mapa 15 graus para a esquerda" title="Girar 15° à esquerda (Q)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10V4m0 0h6M4 4l4 4a8 8 0 1 1-2 8"/></svg><span>↶ 15°</span></button><button class="tool camera-tool" id="bRotateRight" type="button" aria-label="Girar mapa 15 graus para a direita" title="Girar 15° à direita (E)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 10V4m0 0h-6m6 0-4 4a8 8 0 1 0 2 8"/></svg><span>↷ 15°</span></button>';
+  toolbar.parentNode.insertBefore(camera, toolbar);
+
+  const creativeInput = $("settingCreative");
+  const creativeGroup = document.querySelector("#settingsDialog .settings-group:last-of-type");
+  if (creativeGroup) {
+    const row = creativeInput && creativeInput.closest(".setting-row") || document.createElement("label");
+    row.className = "setting-row"; row.htmlFor = "settingCreative";
+    row.innerHTML = '<span><b>Modo livre</b><small>Blocos infinitos e espaço para criar sem objetivos</small></span><input id="settingCreative" type="checkbox" role="switch">';
+    creativeGroup.appendChild(row);
+  }
 }
 
 function pick(e) {
   const r = cv.getBoundingClientRect(), mx = (e.clientX - r.left) * W / r.width, my = (e.clientY - r.top) * H / r.height;
-  for (let s = 2 * N - 2; s >= 0; s--) for (let x = N - 1; x >= 0; x--) {
-    const y = s - x; if (y < 0 || y >= N) continue;
+  for (const i of ordemProfundidade(true)) {
+    const x = i % N, y = Math.floor(i / N);
     const cell = grade[y * N + x], h = cell.h;
     if (h) {
       const style = cell.r % 6, q = beirais(x, y, style);
@@ -501,12 +631,17 @@ function pick(e) {
     }
     if (h && pip([P(x, y, h), P(x + 1, y, h), P(x + 1, y, 0), P(x + 1, y + 1, 0), P(x, y + 1, 0), P(x, y + 1, h)], mx, my)) return y * N + x;
   }
-  const u = (mx - OX) / (TW / 2), v = (my - OY) / (TH / 2), gx = Math.floor((u + v) / 2), gy = Math.floor((v - u) / 2);
+  const u = (mx - OX) / (TW / 2), v = (my - OY) / (TH / 2);
+  const [gx, gy] = pontoMundo((u + v) / 2, (v - u) / 2).map(Math.floor);
   return gx >= 0 && gy >= 0 && gx < N && gy < N ? gy * N + gx : -1;
 }
 
 cv.addEventListener("pointermove", e => { keyboardNav = false; hov = pick(e); });
 cv.addEventListener("pointerleave", () => { keyboardNav = false; hov = -1; });
+cv.addEventListener("wheel", e => {
+  if (!e.shiftKey) return;
+  e.preventDefault(); girarCamera(e.deltaY > 0 ? 1 : -1);
+}, { passive: false });
 cv.addEventListener("pointerdown", e => {
   cv.focus({ preventScroll: true });
   const cell = pick(e);
@@ -515,6 +650,7 @@ cv.addEventListener("pointerdown", e => {
   agir(cell, demo || e.button === 2);
 });
 cv.addEventListener("contextmenu", e => e.preventDefault());
+prepararControlesCriativos();
 $("btnSettingsIntro").addEventListener("click", () => abrirConfiguracoes("inicio"));
 $("btnSettingsGame").addEventListener("click", () => abrirConfiguracoes("jogo"));
 $("settingsDialog").addEventListener("cancel", e => {
@@ -533,6 +669,10 @@ $("settingMotion").addEventListener("change", e => atualizarPreferencia("motion"
 $("settingContrast").addEventListener("change", e => atualizarPreferencia("contrast", e.target.checked));
 $("settingLarge").addEventListener("change", e => atualizarPreferencia("large", e.target.checked));
 $("settingAutosave").addEventListener("change", e => atualizarPreferencia("autosave", e.target.checked));
+$("settingCreative").addEventListener("change", e => {
+  atualizarPreferencia("creative", e.target.checked);
+  if (!e.target.checked && !over && blocos === 0) verificar();
+});
 $("settingColorSafe").addEventListener("change", e => atualizarPreferencia("colorSafe", e.target.checked));
 $("settingVolume").addEventListener("input", e => { $("volumeValue").value = e.target.value + "%"; });
 $("settingVolume").addEventListener("change", e => atualizarPreferencia("volume", Number(e.target.value)));
@@ -541,7 +681,10 @@ $("btnJogar").addEventListener("click", iniciar);
 $("btnContinuar").addEventListener("click", () => iniciar(true));
 $("btnDeNovo").addEventListener("click", iniciar);
 $("bBuild").addEventListener("click", () => modo(false));
+$("bBridge").addEventListener("click", () => modo("bridge"));
 $("bDemo").addEventListener("click", () => modo(true));
+$("bRotateLeft").addEventListener("click", () => girarCamera(-1));
+$("bRotateRight").addEventListener("click", () => girarCamera(1));
 $("bUndo").addEventListener("click", desfazer);
 $("bSom").addEventListener("click", () => {
   atualizarPreferencia("sound", !preferencias.sound);
@@ -552,10 +695,20 @@ document.addEventListener("keydown", e => {
   if (k === "z" && !e.ctrlKey && !e.metaKey) { e.preventDefault(); desfazer(); return; }
   if (k === "d") { e.preventDefault(); modo(!demo); return; }
   if (document.activeElement !== cv && document.activeElement !== document.body) return;
+  if (k === "m") {
+    e.preventDefault(); selectedModel = (selectedModel + 1) % MODELOS.length;
+    $("modelPicker").value = String(selectedModel); aviso("Modelo: " + MODELOS[selectedModel]); return;
+  }
+  if (k === "q") { e.preventDefault(); girarCamera(-1); return; }
+  if (k === "e") { e.preventDefault(); girarCamera(1); return; }
   const moves = { arrowup: [0, -1], arrowdown: [0, 1], arrowleft: [-1, 0], arrowright: [1, 0] };
   if (moves[k]) {
     e.preventDefault();
-    const x = selected % N, y = Math.floor(selected / N), [dx, dy] = moves[k];
+    const x = selected % N, y = Math.floor(selected / N), [viewDx, viewDy] = moves[k];
+    let dx = viewDx, dy = viewDy;
+    const angle = cameraDegrees * Math.PI / 180;
+    dx = Math.round(viewDx * Math.cos(angle) + viewDy * Math.sin(angle));
+    dy = Math.round(-viewDx * Math.sin(angle) + viewDy * Math.cos(angle));
     selected = Math.max(0, Math.min(N - 1, x + dx)) + Math.max(0, Math.min(N - 1, y + dy)) * N;
     keyboardNav = true; hov = -1; anunciarSelecao();
   } else if (k === "enter" || k === " ") {
@@ -563,7 +716,8 @@ document.addEventListener("keydown", e => {
     anunciarSelecao();
   }
 });
-grade = Array.from({ length: N * N }, () => ({ h: 0, c: 0, t: 0, r: 0, born: 0 }));
+grade = Array.from({ length: N * N }, () => ({ h: 0, c: 0, t: 0, r: 0, bridge: false, born: 0 }));
 aplicarPreferencias();
 atualizarBotaoContinuar();
+atualizarDirecaoCamera();
 requestAnimationFrame(desenhar);

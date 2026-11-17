@@ -34,7 +34,8 @@
             <div class="rule"><span class="rule-icon" aria-hidden="true"><svg viewBox="0 0 24 24">
                   <path
                     d="M12 3v3m0 12v3M3 12h3m12 0h3M5.6 5.6l2.1 2.1m8.6 8.6 2.1 2.1m0-12.8-2.1 2.1m-8.6 8.6-2.1-2.1" />
-                  <circle cx="12" cy="12" r="7.2" /><circle cx="12" cy="12" r="3.1" />
+                  <circle cx="12" cy="12" r="7.2" />
+                  <circle cx="12" cy="12" r="3.1" />
                 </svg></span>
               <p><b>Seu objetivo</b><span>Avance por uma campanha de <b>21 pedidos</b>. Cada pedido dá <b>+6 blocos</b>
                   e <b>+50 pontos</b>.</span></p>
@@ -44,7 +45,8 @@
                   <path d="M9.5 21v-4.5h5V21M12 3.5v4" />
                 </svg></span>
               <p><b>Construa seu bairro</b><span>Clique numa área livre para construir. Selecione uma casa para
-                  adicionar andares (máx. 7). Casas vizinhas formam bairros.</span></p>
+                  aria-label="Tabuleiro expansivo de 15 por 15 células. Use as setas para navegar e Enter para
+                  construir. Gire a câmera pelos controles abaixo."
             </div>
             <div class="rule"><span class="rule-icon" aria-hidden="true"><svg viewBox="0 0 24 24">
                   <path d="m14 5 5 5M4 20l4.4-1.1L20 7.3 16.7 4 5.1 15.6z" />
@@ -55,6 +57,10 @@
             </div>
             <div class="rule"><span class="rule-icon" aria-hidden="true"><svg viewBox="0 0 24 24">
                   <rect x="3" y="4" width="18" height="16" rx="3" />
+                  <button class="tool" id="bBridge" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true">
+                      <path d="M3 16c3-8 15-8 18 0" />
+                      <path d="M4 17h16M6 13l-2-2m6-2-1-3m7 3 1-3m1 7 3-2M8 16v3m8-3v3" />
+                    </svg>Ponte</button>
                   <path d="M7 8h2m3 0h2m3 0h1M7 12h1m3 0h2m3 0h2M7 16h10M8 2v4m8-4v4" />
                 </svg></span>
               <p><b>Jogue do seu jeito</b><span>Use o mouse ou teclado: setas para navegar, Enter/Espaço para agir e D
@@ -62,12 +68,14 @@
             </div>
           </div>
           <button class="btn" id="btnJogar"><span class="play-icon" aria-hidden="true"><svg viewBox="0 0 24 24">
-                <path d="m8 5 12 7-12 7z" /><path d="M5 4v16" />
+                <path d="m8 5 12 7-12 7z" />
+                <path d="M5 4v16" />
               </svg></span>Começar a construir</button>
           <button class="btn resume-btn" id="btnContinuar" type="button" hidden><svg class="button-icon"
               viewBox="0 0 24 24" aria-hidden="true">
               <path d="M12 7v5l3.5 2" />
-              <path d="M5 5.5A9 9 0 1 1 3 12" /><path d="M3 5v5h5" />
+              <path d="M5 5.5A9 9 0 1 1 3 12" />
+              <path d="M3 5v5h5" />
             </svg>Continuar partida</button>
           <button class="settings-trigger intro-settings" id="btnSettingsIntro" type="button"
             aria-label="Abrir configurações" title="Configurações"><svg viewBox="0 0 24 24" aria-hidden="true">
@@ -75,6 +83,20 @@
               <path
                 d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-1.8 3.1-.2-.1a1.7 1.7 0 0 0-1.8.1 1.7 1.7 0 0 0-.9 1.5v.2h-3.6v-.2a1.7 1.7 0 0 0-.9-1.5 1.7 1.7 0 0 0-1.8-.1l-.2.1-1.8-3.1.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H5.4v-3.6h.2a1.7 1.7 0 0 0 1.5-1 1.7 1.7 0 0 0-.3-1.9l-.1-.1 1.8-3.1.2.1a1.7 1.7 0 0 0 1.8-.1 1.7 1.7 0 0 0 .9-1.5v-.2H15v.2a1.7 1.7 0 0 0 .9 1.5 1.7 1.7 0 0 0 1.8.1l.2-.1 1.8 3.1-.1.1a1.7 1.7 0 0 0-.3 1.9 1.7 1.7 0 0 0 1.5 1h.2V14h-.2a1.7 1.7 0 0 0-1.4 1Z" />
             </svg><span>Configurações</span></button>
+          <div class="map-controls" role="group" aria-label="Controles da câmera">
+            <span class="map-size">Mapa <b id="mapSize">15 × 15</b></span>
+            <span class="camera-direction" id="cameraDirection" aria-live="polite">Vista norte</span>
+            <button class="tool camera-tool" id="bRotateLeft" type="button"
+              aria-label="Girar mapa 90 graus para a esquerda" title="Girar à esquerda (Q)"><svg viewBox="0 0 24 24"
+                aria-hidden="true">
+                <path d="M4 10V4m0 0h6M4 4l4 4a8 8 0 1 1-2 8" />
+              </svg>Girar</button>
+            <button class="tool camera-tool" id="bRotateRight" type="button"
+              aria-label="Girar mapa 90 graus para a direita" title="Girar à direita (E)"><svg viewBox="0 0 24 24"
+                aria-hidden="true">
+                <path d="M20 10V4m0 0h-6m6 0-4 4a8 8 0 1 0 2 8" />
+              </svg>Girar</button>
+          </div>
           <p class="quiet-note">Uma ilha inteira começa com um bloco.</p>
         </div>
       </div>
@@ -125,7 +147,9 @@
             <path d="M8 7 3 12l5 5" />
             <path d="M3 12h10a7 7 0 1 1-6.5 9" />
           </svg>Desfazer</button>
-        <button class="tool sound-tool" id="bSom" aria-label="Desativar som" aria-pressed="true"><svg
+        <button class="tool sound-tool" id="bSom" aria-label="Desativar som" aria-pressed="true"><svg <label
+            class="setting-row" for="settingCreative"><span><b>Modo livre</b><small>Blocos infinitos e sem derrota por
+                recursos</small></span><input id="settingCreative" type="checkbox" role="switch"></label>
             viewBox="0 0 24 24" aria-hidden="true">
             <path d="M3 9v6h4l5 4V5L7 9z" />
             <path d="M15 9a4 4 0 0 1 0 6m3-9a8 8 0 0 1 0 12" />
@@ -170,7 +194,8 @@
         </div>
         <button class="settings-close" type="submit" value="close" aria-label="Fechar configurações" title="Fechar"><svg
             viewBox="0 0 24 24" aria-hidden="true">
-            <path d="m5 5 14 14M19 5 5 19" /><circle cx="12" cy="12" r="9" />
+            <path d="m5 5 14 14M19 5 5 19" />
+            <circle cx="12" cy="12" r="9" />
           </svg></button>
       </header>
       <p class="settings-description" id="settingsDescription">Ajuste som e acessibilidade. Suas preferências ficam
@@ -204,4 +229,5 @@
   </dialog>
   <script src="script.js"></script>
 </body>
+
 </html>
