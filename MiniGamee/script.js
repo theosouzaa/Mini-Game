@@ -170,6 +170,20 @@ function box(x, y, s, z0, z1, col) {
   poly([P(x, y + s, z0), P(x + s, y + s, z0), P(x + s, y + s, z1), P(x, y + s, z1)], sh(col, .98));
   poly([P(x, y, z1), P(x + s, y, z1), P(x + s, y + s, z1), P(x, y + s, z1)], sh(col, 1.08));
 }
+function beirais(x, y, style) {
+  const size = style === 4 ? .15 : .08;
+  const connected = (x > 0 && grade[y * N + x - 1].h)
+    || (x < N - 1 && grade[y * N + x + 1].h)
+    || (y > 0 && grade[(y - 1) * N + x].h)
+    || (y < N - 1 && grade[(y + 1) * N + x].h);
+  if (connected) return { x0: 0, x1: 0, y0: 0, y1: 0 };
+  return {
+    x0: size,
+    x1: size,
+    y0: size,
+    y1: size
+  };
+}
 
 function win(f, k, u0, u1, shut) {
   if (shut) {
@@ -256,20 +270,19 @@ function celula(x, y, now) {
       box(x + .57, y + .5, .2, hz + .08, hz + .2, "#a2ad72");
     }
   } else {
-    const q = type === 4 ? .15 : .08;
-    const A = P(x - q, y - q, hz), B = P(x + 1 + q, y - q, hz), C = P(x + 1 + q, y + 1 + q, hz), D = P(x - q, y + 1 + q, hz);
-    const roofHeight = type === 2 ? 1.18 : type === 4 ? .78 : .95;
+    const q = beirais(x, y, type);
+    const A = P(x - q.x0, y - q.y0, hz), B = P(x + 1 + q.x1, y - q.y0, hz);
+    const C = P(x + 1 + q.x1, y + 1 + q.y1, hz), D = P(x - q.x0, y + 1 + q.y1, hz);
+    const roofHeight = type === 2 ? 1 : type === 4 ? .68 : .95;
     const T = P(x + .5, y + .5, hz + roofHeight);
     if (type === 2 || type === 4) {
-      const ridgeHeight = type === 2 ? .72 : .48;
-      const ridgeL = P(x + .5, y - q, hz + ridgeHeight), ridgeR = P(x + .5, y + 1 + q, hz + ridgeHeight);
-      poly([D, C, ridgeR, T, ridgeL], sh(tel, 1.02), "rgba(0,0,0,.12)");
-      poly([ridgeL, ridgeR, B, A], sh(tel, .76), "rgba(0,0,0,.12)");
-      if (type === 2) {
-        poly([T, [T[0] + 2, T[1] + 9], [T[0] + 16, T[1] + 6], [T[0] + 12, T[1] + 2]], "#e9d5a6");
-      } else {
-        poly([D, C, ridgeR, T, ridgeL], null, "#f2d89d");
-        poly([ridgeL, ridgeR, B, A], null, "rgba(255,255,255,.55)");
+      const ridgeHeight = roofHeight;
+      const ridgeL = P(x + .5, y - q.y0, hz + ridgeHeight), ridgeR = P(x + .5, y + 1 + q.y1, hz + ridgeHeight);
+      poly([A, ridgeL, ridgeR, D], sh(tel, 1.02), "rgba(0,0,0,.12)");
+      poly([ridgeL, B, C, ridgeR], sh(tel, .76), "rgba(0,0,0,.12)");
+      if (type === 4) {
+        poly([A, ridgeL, ridgeR, D], null, "#f2d89d");
+        poly([ridgeL, B, C, ridgeR], null, "rgba(255,255,255,.55)");
       }
     } else {
       poly([D, C, T], sh(tel, 1.02), "rgba(0,0,0,.12)");
@@ -360,7 +373,7 @@ function aviso(t) {
 }
 function syncSoundButton() {
   const button = $("bSom");
-  button.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10v4h4l5 4V6l-5 4z"/>' + (som ? '<path d="M16 9a5 5 0 0 1 0 6m3-9a9 9 0 0 1 0 12"/>' : '<path d="m17 9 5 6m0-6-5 6"/>') + '</svg><span class="sound-label">' + (som ? 'Som ligado' : 'Som desligado') + '</span>';
+  button.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9v6h4l5 4V5L7 9z"/>' + (som ? '<path d="M15 9a4 4 0 0 1 0 6m3-9a8 8 0 0 1 0 12"/>' : '<path d="m17 9 5 6m0-6-5 6"/>') + '</svg><span class="sound-label">' + (som ? 'Som ligado' : 'Som desligado') + '</span>';
   button.setAttribute("aria-label", som ? "Desativar som" : "Ativar som");
   button.setAttribute("aria-pressed", String(som));
 }
@@ -438,7 +451,7 @@ function fim(vitoria) {
   $("fimInfo").textContent = vitoria ? "Pedidos concluídos: " + QUESTS.length + " de " + QUESTS.length : "Pedidos concluídos: " + qi + " de " + QUESTS.length;
   $("fimBest").textContent = "Melhor pontuação: " + melhorPontuacao;
   const estrelas = vitoria ? 3 : Math.min(2, Math.floor(qi / 3));
-  $("fimStars").innerHTML = Array.from({ length: 3 }, (_, i) => '<span class="' + (i < estrelas ? "" : "off") + '" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m12 3 2.7 5.5 6.1.9-4.4 4.3 1 6.1-5.4-2.9-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/></svg></span>').join("");
+  $("fimStars").innerHTML = Array.from({ length: 3 }, (_, i) => '<span class="' + (i < estrelas ? "" : "off") + '" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m12 2.7 2.8 5.7 6.3.9-4.6 4.5 1.1 6.4-5.6-3-5.6 3 1.1-6.4-4.6-4.5 6.3-.9z"/></svg></span>').join("");
   $("fimStars").setAttribute("aria-label", estrelas + " de 3 estrelas");
   tela("fim");
 }
@@ -471,17 +484,20 @@ function pick(e) {
     const y = s - x; if (y < 0 || y >= N) continue;
     const cell = grade[y * N + x], h = cell.h;
     if (h) {
-      const style = cell.r % 6, q = style === 4 ? .15 : .08;
+      const style = cell.r % 6, q = beirais(x, y, style);
       let roof;
       if (style === 0) {
-        roof = [P(x - q, y - q, h), P(x + .5, y + .5, h + .95), P(x + 1 + q, y - q, h), P(x + 1 + q, y + 1 + q, h), P(x - q, y + 1 + q, h)];
+        roof = [P(x - q.x0, y - q.y0, h), P(x + .5, y + .5, h + .95), P(x + 1 + q.x1, y - q.y0, h), P(x + 1 + q.x1, y + 1 + q.y1, h), P(x - q.x0, y + 1 + q.y1, h)];
       } else if (style === 2 || style === 4) {
-        const ridgeHeight = style === 2 ? .72 : .48, peakHeight = style === 2 ? 1.18 : .78;
-        roof = [P(x - q, y - q, h), P(x + .5, y - q, h + ridgeHeight), P(x + .5, y + .5, h + peakHeight), P(x + .5, y + 1 + q, h + ridgeHeight), P(x + 1 + q, y - q, h), P(x + 1 + q, y + 1 + q, h), P(x - q, y + 1 + q, h)];
+        const ridgeHeight = style === 2 ? 1 : .68;
+        const A = P(x - q.x0, y - q.y0, h), B = P(x + 1 + q.x1, y - q.y0, h);
+        const C = P(x + 1 + q.x1, y + 1 + q.y1, h), D = P(x - q.x0, y + 1 + q.y1, h);
+        const ridgeL = P(x + .5, y - q.y0, h + ridgeHeight), ridgeR = P(x + .5, y + 1 + q.y1, h + ridgeHeight);
+        if (pip([A, ridgeL, ridgeR, D], mx, my) || pip([ridgeL, B, C, ridgeR], mx, my)) return y * N + x;
       } else {
         roof = [P(x, y, h + .22), P(x + 1, y, h + .22), P(x + 1, y + 1, h + .22), P(x, y + 1, h + .22)];
       }
-      if (pip(roof, mx, my)) return y * N + x;
+      if (roof && pip(roof, mx, my)) return y * N + x;
     }
     if (h && pip([P(x, y, h), P(x + 1, y, h), P(x + 1, y, 0), P(x + 1, y + 1, 0), P(x, y + 1, 0), P(x, y + 1, h)], mx, my)) return y * N + x;
   }
