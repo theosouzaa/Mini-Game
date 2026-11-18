@@ -1,9 +1,10 @@
 const N = 19, MAXH = 7, TW = 72, TH = 36, FH = 28, BLOCOS = 20, BONUS = 6;
 const W = N * TW + 40, H = N * TH + MAXH * FH + 70, OX = W / 2, OY = MAXH * FH + 28;
-const CORES = ["#f2b5a7", "#f6d58b", "#b9ddc4", "#a8cbe8", "#e6c2dd", "#f1c59a", "#d4e3a0", "#f2a9b6"];
-const CORES_ACESSIVEIS = ["#e69f00", "#56b4e9", "#009e73", "#f0e442", "#0072b2", "#d55e00", "#cc79a7", "#666666"];
-const TELHAS = ["#d4694f", "#4e8e9b", "#6a7db4", "#8d5c98", "#c9923f", "#557b65", "#4c667d", "#a84f4a"];
-const TELHAS_ACESSIVEIS = ["#8c2d04", "#01665e", "#542788", "#8c6d31", "#0571b0", "#a50026", "#4d4d4d", "#1b7837"];
+const CORES = ["#f2b5a7", "#f6d58b", "#b9ddc4", "#a8cbe8", "#e6c2dd", "#f1c59a", "#d4e3a0", "#f2a9b6", "#8fd0c2", "#c5b7ea", "#f4dfcf", "#8db5c8"];
+const CORES_NOMES = ["Pêssego", "Girassol", "Menta", "Brisa", "Lavanda", "Areia", "Folha", "Coral", "Turquesa", "Lilás", "Concha", "Oceano"];
+const CORES_ACESSIVEIS = ["#e69f00", "#56b4e9", "#009e73", "#f0e442", "#0072b2", "#d55e00", "#cc79a7", "#666666", "#1b9e77", "#7570b3", "#a6761d", "#4d4d4d"];
+const TELHAS = ["#d4694f", "#4e8e9b", "#6a7db4", "#8d5c98", "#c9923f", "#557b65", "#4c667d", "#a84f4a", "#368b83", "#cf8a58", "#71659b", "#47718b"];
+const TELHAS_ACESSIVEIS = ["#8c2d04", "#01665e", "#542788", "#8c6d31", "#0571b0", "#a50026", "#4d4d4d", "#1b7837", "#005a32", "#a6611a", "#5e3c99", "#2166ac"];
 const QUESTS = [
   { t: "Construa 5 casas", k: "cs", n: 5 },
   { t: "Una 6 casas lado a lado", k: "big", n: 6 },
@@ -25,8 +26,18 @@ const QUESTS = [
   { t: "Construa 35 casas", k: "cs", n: 35 },
   { t: "Erga 9 torres de 4 andares", k: "towers", n: 9 },
   { t: "Una 30 casas num bairro", k: "big", n: 30 },
-  { t: "Some 120 andares na ilha", k: "fl", n: 120 }
+  { t: "Some 120 andares na ilha", k: "fl", n: 120 },
+  { t: "Conecte um bairro com 35 casas", k: "big", n: 35 },
+  { t: "Povoe a ilha com 40 casas", k: "cs", n: 40 },
+  { t: "Some 145 andares na ilha", k: "fl", n: 145 },
+  { t: "Erga 10 torres de 4 andares", k: "towers", n: 10 },
+  { t: "Ligue bairros com 4 pontes", k: "bridges", n: 4 },
+  { t: "Povoe a ilha com 45 casas", k: "cs", n: 45 },
+  { t: "Conecte um bairro com 40 casas", k: "big", n: 40 },
+  { t: "Some 180 andares na ilha", k: "fl", n: 180 },
+  { t: "Expanda a rede para 8 pontes", k: "bridges", n: 8 }
 ];
+const FASES = ["Primeiros lares", "Bairro unido", "Ilha em expansão", "Torres e caminhos", "Comunidade viva", "Ilha florescida"];
 const $ = id => document.getElementById(id);
 const cv = $("cv"), ctx = cv.getContext("2d");
 const dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -34,8 +45,11 @@ cv.width = W * dpr; cv.height = H * dpr;
 ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
 let grade, pts, blocos, qi, hist, som = true, demo = false, bridgeMode = false, over = true, hov = -1, floats = [], ac;
-let selected = Math.floor(N / 2) * N + Math.floor(N / 2), keyboardNav = false, cameraDegrees = 0, selectedModel = 0;
-const MODELOS = ["Clássica", "Torre", "Chalé", "Varanda", "Sótão", "Jardim", "Pátio", "Pavilhão"];
+let selected = Math.floor(N / 2) * N + Math.floor(N / 2), keyboardNav = false, cameraDegrees = 0, selectedModel = 0, selectedColor = -1;
+let cameraDrag = null;
+const MODELOS = ["Clássica", "Torre", "Chalé", "Varanda", "Sótão", "Jardim", "Pátio", "Pavilhão", "Rotunda", "Farol", "Casa de praia", "Telhado verde", "Coreto", "Observatório", "Telhado piramidal", "Arcada", "Escadaria"];
+const MODELOS_PLANOS = new Set([1, 3, 5, 6, 7, 8, 9, 11, 12, 13, 15, 16]);
+const MODELOS_GABLE = new Set([0, 2, 4, 10]);
 const PREFERENCIAS_PADRAO = {
   sound: true,
   motion: !window.matchMedia("(prefers-reduced-motion: reduce)").matches,
@@ -112,7 +126,7 @@ function lerProgresso() {
       if (!cell || !Number.isInteger(cell.h) || cell.h < 0 || cell.h > MAXH) return null;
       if (!Number.isInteger(cell.c) || cell.c < 0 || cell.c >= CORES.length) return null;
       if (!Number.isInteger(cell.t) || cell.t < 0 || cell.t >= TELHAS.length) return null;
-      if (!Number.isInteger(cell.r) || cell.r < 0 || cell.r >= 8) return null;
+      if (!Number.isInteger(cell.r) || cell.r < 0 || cell.r >= MODELOS.length) return null;
       return { h: cell.h, c: cell.c, t: cell.t, r: cell.r, bridge: !!cell.bridge, born: 0 };
     });
     const oldRotation = Number(save.rotation) || 0;
@@ -195,12 +209,18 @@ function pip(p, x, y) {
   return r;
 }
 function box(x, y, s, z0, z1, col) {
-  poly([P(x + s, y + s, z0), P(x + s, y, z0), P(x + s, y, z1), P(x + s, y + s, z1)], sh(col, .8));
-  poly([P(x, y + s, z0), P(x + s, y + s, z0), P(x + s, y + s, z1), P(x, y + s, z1)], sh(col, .98));
+  const angle = cameraDegrees * Math.PI / 180, cos = Math.cos(angle), sin = Math.sin(angle);
+  const sides = [
+    { depth: cos + sin, shade: .8, points: [P(x + s, y + s, z0), P(x + s, y, z0), P(x + s, y, z1), P(x + s, y + s, z1)] },
+    { depth: -cos - sin, shade: .8, points: [P(x, y, z0), P(x, y + s, z0), P(x, y + s, z1), P(x, y, z1)] },
+    { depth: cos - sin, shade: .98, points: [P(x, y + s, z0), P(x + s, y + s, z0), P(x + s, y + s, z1), P(x, y + s, z1)] },
+    { depth: sin - cos, shade: .98, points: [P(x + s, y, z0), P(x, y, z0), P(x, y, z1), P(x + s, y, z1)] }
+  ];
+  sides.filter(side => side.depth > 1e-5).forEach(side => poly(side.points, sh(col, side.shade)));
   poly([P(x, y, z1), P(x + s, y, z1), P(x + s, y + s, z1), P(x, y + s, z1)], sh(col, 1.08));
 }
 function beirais(x, y, style) {
-  const size = style === 4 ? .15 : .08;
+  const size = style === 4 ? .15 : style === 10 ? .2 : .08;
   const connected = (x > 0 && grade[y * N + x - 1].h)
     || (x < N - 1 && grade[y * N + x + 1].h)
     || (y > 0 && grade[(y - 1) * N + x].h)
@@ -231,12 +251,21 @@ function parede(f, col, fac, f0, hz, x, y, shut) {
     if (k === top) poly([f(0, zt - .07), f(1, zt - .07), f(1, zt), f(0, zt)], "rgba(255,255,255,.28)");
     if (zt - k < 1) continue;
     if (k === 0) {
-      win(f, 0, .1, .27, shut); win(f, 0, .73, .9, shut);
-      poly([f(.38, 0), f(.62, 0), f(.62, .5), f(.5, .68), f(.38, .5)], "#7a4e34");
-      poly([f(.42, 0), f(.58, 0), f(.58, .48), f(.5, .6), f(.42, .48)], "#9a6a48");
+      const model = grade[y * N + x].r % MODELOS.length;
+      if (model === 15) {
+        const left = f(.27, 0), leftTop = f(.27, .43), crown = f(.5, .8), rightTop = f(.73, .43), right = f(.73, 0);
+        ctx.beginPath(); ctx.moveTo(...left); ctx.lineTo(...leftTop); ctx.quadraticCurveTo(...crown, ...rightTop);
+        ctx.lineTo(...right); ctx.closePath(); ctx.fillStyle = "#35545c"; ctx.fill();
+        ctx.beginPath(); ctx.moveTo(...left); ctx.lineTo(...leftTop); ctx.quadraticCurveTo(...crown, ...rightTop); ctx.lineTo(...right);
+        ctx.strokeStyle = "#f3d79b"; ctx.lineWidth = 2; ctx.stroke();
+      } else {
+        win(f, 0, .1, .27, shut); win(f, 0, .73, .9, shut);
+        poly([f(.38, 0), f(.62, 0), f(.62, .5), f(.5, .68), f(.38, .5)], "#7a4e34");
+        poly([f(.42, 0), f(.58, 0), f(.58, .48), f(.5, .6), f(.42, .48)], "#9a6a48");
+      }
       continue;
     }
-    const type = grade[y * N + x].r % 6;
+    const type = grade[y * N + x].r % MODELOS.length;
     const v = (x * 3 + y * 5 + k * 7) % 3;
     if (type === 0) {
       if (v === 0) { win(f, k, .16, .34, shut); win(f, k, .66, .84, shut); }
@@ -270,12 +299,18 @@ function linha(a, b, color, width = 1) {
 function desenharPonte(x, y) {
   const z = .2, a = P(x, y, z), b = P(x + 1, y, z), c = P(x + 1, y + 1, z), d = P(x, y + 1, z);
   poly([a, b, c, d], "#b7834e", "#765333");
+  const occupied = (gx, gy) => gx >= 0 && gy >= 0 && gx < N && gy < N && (grade[gy * N + gx].h || grade[gy * N + gx].bridge);
+  const alongX = occupied(x - 1, y) && occupied(x + 1, y);
   for (let plank = 1; plank < 5; plank++) {
     const t = plank / 5;
-    linha(P(x + t, y, z + .01), P(x + t, y + 1, z + .01), "rgba(82,53,34,.45)");
+    if (alongX) linha(P(x + t, y, z + .01), P(x + t, y + 1, z + .01), "rgba(82,53,34,.45)");
+    else linha(P(x, y + t, z + .01), P(x + 1, y + t, z + .01), "rgba(82,53,34,.45)");
   }
   const railHeight = .28;
-  [[x, y, x + 1, y, a, b], [x, y + 1, x + 1, y + 1, d, c]].forEach(([x0, y0, x1, y1, start, end]) => {
+  const rails = alongX
+    ? [[x, y, x + 1, y, a, b], [x, y + 1, x + 1, y + 1, d, c]]
+    : [[x, y, x, y + 1, a, d], [x + 1, y, x + 1, y + 1, b, c]];
+  rails.forEach(([x0, y0, x1, y1, start, end]) => {
     const raisedStart = P(x0, y0, z + railHeight), raisedEnd = P(x1, y1, z + railHeight);
     linha(start, raisedStart, "#65452f", 1.5); linha(raisedStart, raisedEnd, "#65452f", 1.5); linha(raisedEnd, end, "#65452f", 1.5);
   });
@@ -294,17 +329,24 @@ function celula(x, y, now) {
   const telhas = preferencias.colorSafe ? TELHAS_ACESSIVEIS : TELHAS;
   const hz = Math.max(.05, c.h - 1 + eb), col = cores[c.c], tel = telhas[c.t];
   box(x - .05, y - .05, 1.1, -.45, .1, "#b7b0a3");
-  const nl = y < N - 1 ? grade[(y + 1) * N + x].h : 0;
-  const nr = x < N - 1 ? grade[y * N + x + 1].h : 0;
-  const fl = (u, z) => P(x + u, y + 1, z), fr = (u, z) => P(x + 1, y + 1 - u, z);
   const shut = sh(tel, 1.1);
-  if (nl < hz) parede(fl, col, .98, nl, hz, x, y, shut);
-  if (nr < hz) parede(fr, col, .8, nr, hz, x, y, shut);
-  const type = c.r % 6;
-  if (type === 1 || type === 3 || type === 5 || type === 6 || type === 7) {
+  const angle = cameraDegrees * Math.PI / 180, cos = Math.cos(angle), sin = Math.sin(angle);
+  const faces = [
+    { depth: cos + sin, neighbor: x < N - 1 ? y * N + x + 1 : -1, point: (u, z) => P(x + 1, y + u, z), shade: .8 },
+    { depth: -cos - sin, neighbor: x > 0 ? y * N + x - 1 : -1, point: (u, z) => P(x, y + u, z), shade: .8 },
+    { depth: cos - sin, neighbor: y < N - 1 ? (y + 1) * N + x : -1, point: (u, z) => P(x + u, y + 1, z), shade: .98 },
+    { depth: sin - cos, neighbor: y > 0 ? (y - 1) * N + x : -1, point: (u, z) => P(x + u, y, z), shade: .98 }
+  ];
+  faces.filter(face => face.depth > 1e-5).forEach(face => {
+    const neighborHeight = face.neighbor >= 0 ? grade[face.neighbor].h : 0;
+    if (neighborHeight < hz) parede(face.point, col, face.shade, neighborHeight, hz, x, y, shut);
+  });
+  const type = c.r % MODELOS.length;
+  if (MODELOS_PLANOS.has(type)) {
     poly([P(x, y, hz), P(x + 1, y, hz), P(x + 1, y + 1, hz), P(x, y + 1, hz)], "#ece3d1", "rgba(0,0,0,.1)");
-    poly([P(x, y + 1, hz), P(x + 1, y + 1, hz), P(x + 1, y + 1, hz + .22), P(x, y + 1, hz + .22)], sh(col, 1.05));
-    poly([P(x + 1, y + 1, hz), P(x + 1, y, hz), P(x + 1, y, hz + .22), P(x + 1, y + 1, hz + .22)], sh(col, .85));
+    faces.filter(face => face.depth > 1e-5).forEach(face => poly([
+      face.point(0, hz), face.point(1, hz), face.point(1, hz + .22), face.point(0, hz + .22)
+    ], sh(col, face.shade)));
     if (type === 1) {
       const a = P(x + .5, y + .5, hz), b = P(x + .5, y + .5, hz + 1.2);
       ctx.strokeStyle = "#6b5a4a"; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); ctx.stroke();
@@ -315,47 +357,136 @@ function celula(x, y, now) {
       poly([P(x + .33, y + .26, hz + .05), P(x + .33, y + .56, hz + .05)], null, "#c9e6d9");
       const antenna = P(x + .76, y + .3, hz + .22);
       ctx.strokeStyle = "#6b5a4a"; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(...antenna); ctx.lineTo(antenna[0], antenna[1] - 13); ctx.stroke();
-    } else if (type === 5) {
-      box(x + .15, y + .22, .34, hz + .08, hz + .24, "#78966b");
+    } else if (type === 5 || type === 11) {
+      box(x + .15, y + .22, .34, hz + .08, hz + .24, type === 5 ? "#78966b" : "#628767");
       box(x + .57, y + .5, .2, hz + .08, hz + .2, "#a2ad72");
+      if (type === 11) {
+        poly([P(x + .16, y + .23, hz + .25), P(x + .32, y + .23, hz + .55), P(x + .48, y + .23, hz + .25)], "#628767");
+        poly([P(x + .56, y + .51, hz + .21), P(x + .67, y + .51, hz + .43), P(x + .78, y + .51, hz + .21)], "#78966b");
+      }
     } else if (type === 6) {
       poly([P(x + .12, y + .18, hz + .06), P(x + .42, y + .18, hz + .06), P(x + .42, y + .48, hz + .06), P(x + .12, y + .48, hz + .06)], "#b9d1c1", "#fff8df");
       poly([P(x + .58, y + .5, hz + .06), P(x + .84, y + .5, hz + .06), P(x + .84, y + .76, hz + .06), P(x + .58, y + .76, hz + .06)], "#d2b778", "#fff8df");
-    } else {
+    } else if (type === 7) {
       box(x + .16, y + .18, .24, hz + .08, hz + .22, "#628767");
       box(x + .58, y + .56, .24, hz + .08, hz + .22, "#628767");
       linha(P(x + .28, y + .25, hz + .24), P(x + .7, y + .63, hz + .24), "#55805f", 2);
+    } else if (type === 8 || type === 13) {
+      const center = P(x + .5, y + .5, hz + .22), radiusX = TW * (type === 8 ? .24 : .3), radiusY = TH * (type === 8 ? .34 : .42);
+      ctx.beginPath(); ctx.ellipse(center[0], center[1], radiusX, radiusY, 0, Math.PI, Math.PI * 2);
+      ctx.lineTo(center[0] - radiusX, center[1]); ctx.closePath();
+      ctx.fillStyle = type === 8 ? sh(tel, .92) : "#748ba2"; ctx.fill();
+      ctx.strokeStyle = "rgba(65,65,78,.55)"; ctx.lineWidth = 1.5; ctx.stroke();
+      if (type === 13) {
+        const telescope = P(x + .5, y + .5, hz + .62), end = P(x + .82, y + .5, hz + .9);
+        linha(telescope, end, "#e7c66c", 2.5);
+      }
+    } else if (type === 9) {
+      const beacon = P(x + .5, y + .5, hz + .28);
+      box(x + .39, y + .39, .22, hz + .22, hz + .42, "#d9b16f");
+      ctx.beginPath(); ctx.arc(beacon[0], beacon[1] - 4, 5, 0, Math.PI * 2); ctx.fillStyle = "#ffe58a"; ctx.fill();
+      ctx.beginPath(); ctx.arc(beacon[0], beacon[1] - 4, 9, 0, Math.PI * 2); ctx.strokeStyle = "rgba(255,229,138,.5)"; ctx.stroke();
+    } else if (type === 12) {
+      [[.14,.14],[.74,.14],[.14,.74],[.74,.74]].forEach(([px,py])=>box(x+px,y+py,.12,hz+.04,hz+.62,"#c9a66b"));
+      poly([P(x + .08, y + .08, hz + .64), P(x + .92, y + .08, hz + .64), P(x + .92, y + .92, hz + .64), P(x + .08, y + .92, hz + .64)], tel, "rgba(50,55,65,.45)");
+    } else if (type === 16) {
+      for (let step = 0; step < 5; step++) {
+        const u = .12 + step * .13, z = hz + .03 + step * .09;
+        linha(P(x + u, y + .28, z), P(x + u + .15, y + .28, z), "#f1d59a", 3);
+        linha(P(x + u + .15, y + .28, z), P(x + u + .15, y + .28, z + .09), "#9a704c", 2);
+      }
     }
   } else {
     const q = beirais(x, y, type);
     const A = P(x - q.x0, y - q.y0, hz), B = P(x + 1 + q.x1, y - q.y0, hz);
     const C = P(x + 1 + q.x1, y + 1 + q.y1, hz), D = P(x - q.x0, y + 1 + q.y1, hz);
-    const roofHeight = type === 2 ? 1 : type === 4 ? .68 : .95;
+    const roofHeight = type === 2 ? 1 : type === 4 ? .68 : type === 14 ? .95 : .78;
     const T = P(x + .5, y + .5, hz + roofHeight);
-    if (type === 2 || type === 4) {
+    if (MODELOS_GABLE.has(type)) {
       const ridgeHeight = roofHeight;
       const ridgeL = P(x + .5, y - q.y0, hz + ridgeHeight), ridgeR = P(x + .5, y + 1 + q.y1, hz + ridgeHeight);
-      poly([A, ridgeL, ridgeR, D], sh(tel, 1.02), "rgba(0,0,0,.12)");
-      poly([ridgeL, B, C, ridgeR], sh(tel, .76), "rgba(0,0,0,.12)");
-      if (type === 4) {
-        poly([A, ridgeL, ridgeR, D], null, "#f2d89d");
-        poly([ridgeL, B, C, ridgeR], null, "rgba(255,255,255,.55)");
-      }
+      const gables = [
+        { depth: -(cos + sin), points: [A, ridgeL, ridgeR, D], shade: 1.02 },
+        { depth: cos + sin, points: [ridgeL, B, C, ridgeR], shade: .76 }
+      ];
+      gables.filter(face => face.depth > 1e-5).forEach(face => poly(face.points, sh(tel, face.shade), "rgba(0,0,0,.12)"));
+      const ends = [
+        { depth: cos - sin, neighbor: y < N - 1 ? (y + 1) * N + x : -1, points: [D, C, ridgeR], shade: .96 },
+        { depth: sin - cos, neighbor: y > 0 ? (y - 1) * N + x : -1, points: [A, ridgeL, B], shade: .82 }
+      ];
+      ends.filter(face => face.depth > 1e-5 && (face.neighbor < 0 || grade[face.neighbor].h < c.h))
+        .forEach(face => poly(face.points, sh(col, face.shade), sh(tel, .8)));
+      if (type === 4) gables.filter(face => face.depth > 1e-5).forEach(face => poly(face.points, null, "rgba(255,255,255,.55)"));
     } else {
-      poly([D, C, T], sh(tel, 1.02), "rgba(0,0,0,.12)");
-      poly([C, B, T], sh(tel, .75), "rgba(0,0,0,.12)");
-      if (type === 0 && c.h > 1) box(x + .58, y + .22, .14, hz + .25, hz + .85, "#a39a90");
+      const roofFaces = [
+        { depth: cos + sin, points: [B, C, T], shade: .76 },
+        { depth: -cos - sin, points: [D, A, T], shade: .8 },
+        { depth: cos - sin, points: [C, D, T], shade: 1.02 },
+        { depth: sin - cos, points: [A, B, T], shade: .98 }
+      ];
+      roofFaces.filter(face => face.depth > 1e-5).forEach(face => poly(face.points, sh(tel, face.shade), "rgba(0,0,0,.12)"));
+      if (c.h > 1) box(x + .58, y + .22, .14, hz + .25, hz + .85, "#a39a90");
     }
   }
+}
+
+function desenharFundo(now) {
+  const time = preferencias.motion ? now / 1000 : 0;
+  const sea = ctx.createLinearGradient(0, 0, 0, H);
+  sea.addColorStop(0, "#8bd1d2");
+  sea.addColorStop(.48, "#62b8c1");
+  sea.addColorStop(1, "#347f9a");
+  ctx.fillStyle = sea;
+  ctx.fillRect(0, 0, W, H);
+
+  const glow = ctx.createRadialGradient(W * .16, H * .18, 4, W * .16, H * .18, W * .35);
+  glow.addColorStop(0, "rgba(255,239,190,.28)");
+  glow.addColorStop(1, "rgba(255,239,190,0)");
+  ctx.fillStyle = glow;
+  ctx.fillRect(0, 0, W, H * .7);
+
+  const island = (cx, base, width, height, color) => {
+    ctx.beginPath();
+    ctx.moveTo(cx - width / 2, base);
+    ctx.bezierCurveTo(cx - width * .4, base - height * .2, cx - width * .35, base - height * .95, cx - width * .12, base - height * .76);
+    ctx.bezierCurveTo(cx + width * .02, base - height * 1.25, cx + width * .12, base - height * .38, cx + width * .27, base - height * .68);
+    ctx.bezierCurveTo(cx + width * .43, base - height * .96, cx + width * .43, base - height * .2, cx + width / 2, base);
+    ctx.closePath();
+    ctx.fillStyle = color;
+    ctx.fill();
+    ctx.beginPath();
+    ctx.ellipse(cx, base - 2, width * .49, Math.max(3, height * .09), 0, 0, Math.PI * 2);
+    ctx.fillStyle = "rgba(239,213,150,.42)";
+    ctx.fill();
+  };
+  island(W * .08, H * .31, W * .24, H * .085, "rgba(57,126,111,.56)");
+  island(W * .93, H * .29, W * .2, H * .11, "rgba(48,119,108,.62)");
+  island(W * .63, H * .2, W * .1, H * .035, "rgba(75,145,126,.34)");
+
+  ctx.save();
+  ctx.lineCap = "round";
+  for (let row = 0; row < 13; row++) {
+    const y = H * (.12 + row * .068);
+    for (let col = 0; col < 12; col++) {
+      const speed = .8 + (row % 4) * .22;
+      const x = ((col * 151 + row * 43 + time * 24 * speed) % (W + 80)) - 40;
+      const length = 16 + ((col * 17 + row * 11) % 36);
+      ctx.beginPath();
+      ctx.moveTo(x, y);
+      ctx.quadraticCurveTo(x + length * .5, y - 2, x + length, y);
+      ctx.strokeStyle = row % 3 === 0 ? "rgba(238,250,225,.21)" : "rgba(24,105,128,.12)";
+      ctx.lineWidth = row % 3 === 0 ? 2 : 1;
+      ctx.stroke();
+    }
+  }
+  ctx.restore();
 }
 
 function desenhar(now) {
   requestAnimationFrame(desenhar);
   if (!$("jogo").classList.contains("on")) return;
   const animationTime = preferencias.motion ? now : 0;
-  const g = ctx.createLinearGradient(0, 0, 0, H);
-  g.addColorStop(0, "#82d2dd"); g.addColorStop(1, "#3a97b8");
-  ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+  desenharFundo(animationTime);
   poly([P(0, 0, 0), P(N, 0, 0), P(N, N, 0), P(0, N, 0)], "rgba(255,255,255,.10)");
   for (let x = 0; x < N; x++) for (let y = 0; y < N; y++) {
     const a = .04 + .05 * Math.sin(animationTime / 700 + x * .8 + y * .6);
@@ -371,8 +502,9 @@ function desenhar(now) {
     const i = keyboardNav ? selected : hov;
     const x = i % N, y = Math.floor(i / N), h = grade[i].h;
     if (hov >= 0 && !keyboardNav) {
-      if (demo && h) poly([P(x, y, h), P(x + 1, y, h), P(x + 1, y + 1, h), P(x, y + 1, h)], "rgba(235,70,70,.55)");
-      else if (!demo && h < MAXH && blocos > 0) { ctx.globalAlpha = .5; box(x, y, 1, h, h + 1, "#ffffff"); ctx.globalAlpha = 1; }
+      if (bridgeMode && (preferencias.creative || blocos > 0) && ponteConectaCasas(i)) poly([P(x, y, .2), P(x + 1, y, .2), P(x + 1, y + 1, .2), P(x, y + 1, .2)], "rgba(226,177,105,.72)", "#fff0c0");
+      else if (demo && h) poly([P(x, y, h), P(x + 1, y, h), P(x + 1, y + 1, h), P(x, y + 1, h)], "rgba(235,70,70,.55)");
+      else if (!demo && !bridgeMode && h < MAXH && blocos > 0) { ctx.globalAlpha = .5; box(x, y, 1, h, h + 1, "#ffffff"); ctx.globalAlpha = 1; }
     }
     if (keyboardNav) {
       ctx.beginPath();
@@ -413,6 +545,13 @@ function viz(i) {
   if (x > 0) n.push(i - 1); if (x < N - 1) n.push(i + 1);
   if (y > 0) n.push(i - N); if (y < N - 1) n.push(i + N);
   return n;
+}
+function ponteConectaCasas(i) {
+  const x = i % N, y = Math.floor(i / N);
+  const horizontal = [x > 0 ? i - 1 : -1, x < N - 1 ? i + 1 : -1].filter(v => v >= 0 && (grade[v].h > 0 || grade[v].bridge));
+  const vertical = [y > 0 ? i - N : -1, y < N - 1 ? i + N : -1].filter(v => v >= 0 && (grade[v].h > 0 || grade[v].bridge));
+  const banks = horizontal.length === 2 ? horizontal : vertical.length === 2 ? vertical : [];
+  return banks.length === 2 && banks.some(v => grade[v].h > 0);
 }
 function stats() {
   let cs = 0, fl = 0, mx = 0, big = 0, towers = 0, bridges = 0; const seen = new Set();
@@ -463,7 +602,7 @@ function iniciar(retomar = false) {
   $("bBuild").classList.add("on"); $("bBridge").classList.remove("on"); $("bDemo").classList.remove("on");
   $("bBuild").setAttribute("aria-pressed", "true"); $("bBridge").setAttribute("aria-pressed", "false"); $("bDemo").setAttribute("aria-pressed", "false");
   atualizarDirecaoCamera();
-  $("tip").textContent = "Construa e conecte casas · Ponte para ligar margens · M muda o modelo · Q/E ou Shift + roda do mouse gira a câmera · Z desfaz";
+  $("tip").textContent = "Empilhe e conecte casas · Ponte liga duas margens alinhadas · M muda o modelo · escolha a cor nos controles · Q/E gira a câmera · Z desfaz";
   selected = Math.floor(N / 2) * N + Math.floor(N / 2); keyboardNav = false;
   syncSoundButton();
   hud(); tela("jogo"); cv.focus(); atualizarBotaoContinuar();
@@ -485,6 +624,7 @@ function agir(i, dem) {
     if (preferencias.motion) floats.push({ x, y, z: c.h + .5, s: c.bridge ? "-Ponte" : "-5", t: performance.now() });
   } else if (bridgeMode) {
     if (c.h || c.bridge || (!preferencias.creative && blocos <= 0)) return;
+    if (!ponteConectaCasas(i)) { aviso("Coloque a ponte num vão entre duas casas ou caminhos conectados."); return; }
     salvar(); c.bridge = true;
     if (!preferencias.creative) blocos--;
     pts += 4; bip(460, .16);
@@ -494,7 +634,7 @@ function agir(i, dem) {
     if (c.h === 0) {
       const vs = viz(i).filter(v => grade[v].h > 0), us = vs.map(v => grade[v].c);
       const livres = CORES.map((_, k) => k).filter(k => !us.includes(k));
-      c.c = livres[Math.floor(Math.random() * livres.length)];
+      c.c = selectedColor >= 0 ? selectedColor : livres[Math.floor(Math.random() * livres.length)];
       c.t = Math.floor(Math.random() * TELHAS.length);
       c.r = selectedModel;
       ganho = 10 + 5 * vs.length;
@@ -522,7 +662,7 @@ function fim(vitoria) {
   $("fimTitulo").textContent = vitoria ? "Um novo lar floresceu" : "A ilha ainda precisa de você";
   $("fimTexto").textContent = vitoria ? "Você realizou os pedidos dos moradores e reconstruiu o ilhéu." : "Seus blocos acabaram. Cada casa que você construiu já fez a diferença.";
   $("fimPts").textContent = score;
-  $("fimInfo").textContent = vitoria ? "Pedidos concluídos: " + QUESTS.length + " de " + QUESTS.length : "Pedidos concluídos: " + qi + " de " + QUESTS.length;
+  $("fimInfo").textContent = vitoria ? "Desafios concluídos: " + QUESTS.length + " de " + QUESTS.length : "Desafios concluídos: " + qi + " de " + QUESTS.length;
   $("fimBest").textContent = "Melhor pontuação: " + melhorPontuacao;
   const estrelas = vitoria ? 3 : Math.min(2, Math.floor(qi / 3));
   $("fimStars").innerHTML = Array.from({ length: 3 }, (_, i) => '<span class="' + (i < estrelas ? "" : "off") + '" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m12 2.7 2.8 5.7 6.3.9-4.6 4.5 1.1 6.4-5.6-3-5.6 3 1.1-6.4-4.6-4.5 6.3-.9z"/></svg></span>').join("");
@@ -533,7 +673,8 @@ function hud() {
   const s = stats();
   $("pts").textContent = pts; $("blocos").textContent = preferencias.creative ? "∞" : blocos; $("casas").textContent = s.cs;
   const q = QUESTS[Math.min(qi, QUESTS.length - 1)], v = Math.min(q.n, s[q.k]);
-  $("qn").textContent = "Pedido " + Math.min(qi + 1, QUESTS.length) + "/" + QUESTS.length;
+  const fase = Math.min(Math.floor(qi / 5), FASES.length - 1);
+  $("qn").textContent = "Fase " + (fase + 1) + "/" + FASES.length + " · " + FASES[fase] + " · Desafio " + (qi % 5 + 1) + "/5";
   $("qtxt").textContent = q.t; $("qnum").textContent = v + " / " + q.n;
   $("qfill").style.width = (v / q.n * 100) + "%";
   $("qbar").setAttribute("aria-valuenow", Math.round(v / q.n * 100));
@@ -554,6 +695,15 @@ function girarCamera(turns) {
   cameraDegrees = (cameraDegrees + turns * 15 + 360) % 360;
   atualizarDirecaoCamera();
   salvarProgresso();
+}
+function anguloNoCanvas(e) {
+  const rect = cv.getBoundingClientRect();
+  const x = (e.clientX - rect.left) / rect.width * W - W / 2;
+  const y = (e.clientY - rect.top) / rect.height * H - H / 2;
+  return Math.atan2(y, x) * 180 / Math.PI;
+}
+function normalizarDeltaGraus(delta) {
+  return ((delta + 180) % 360 + 360) % 360 - 180;
 }
 function modo(value) {
   demo = value === true;
@@ -590,6 +740,23 @@ function prepararControlesCriativos() {
   });
   toolbar.insertBefore(picker, $("btnSettingsGame"));
 
+  const colorPicker = document.createElement("label");
+  colorPicker.className = "model-picker color-picker";
+  colorPicker.innerHTML = '<span>Cor</span><select id="colorPicker" aria-label="Cor das próximas casas"></select>';
+  const colorSelect = colorPicker.querySelector("select");
+  colorSelect.add(new Option("Aleatória", "-1"));
+  CORES_NOMES.forEach((nome, index) => {
+    const option = new Option(nome, String(index));
+    option.style.backgroundColor = CORES[index];
+    colorSelect.add(option);
+  });
+  colorSelect.value = String(selectedColor);
+  colorSelect.addEventListener("change", () => {
+    selectedColor = Number(colorSelect.value);
+    aviso(selectedColor < 0 ? "Próximas casas: cores variadas" : "Próximas casas: " + CORES_NOMES[selectedColor]);
+  });
+  toolbar.insertBefore(colorPicker, $("btnSettingsGame"));
+
   const oldCamera = $("mapControls");
   if (oldCamera) oldCamera.remove();
   const camera = document.createElement("div");
@@ -610,45 +777,93 @@ function prepararControlesCriativos() {
 
 function pick(e) {
   const r = cv.getBoundingClientRect(), mx = (e.clientX - r.left) * W / r.width, my = (e.clientY - r.top) * H / r.height;
+  const angle = cameraDegrees * Math.PI / 180, cos = Math.cos(angle), sin = Math.sin(angle);
   for (const i of ordemProfundidade(true)) {
     const x = i % N, y = Math.floor(i / N);
     const cell = grade[y * N + x], h = cell.h;
     if (h) {
-      const style = cell.r % 6, q = beirais(x, y, style);
+      const style = cell.r % MODELOS.length, q = beirais(x, y, style);
       let roof;
-      if (style === 0) {
-        roof = [P(x - q.x0, y - q.y0, h), P(x + .5, y + .5, h + .95), P(x + 1 + q.x1, y - q.y0, h), P(x + 1 + q.x1, y + 1 + q.y1, h), P(x - q.x0, y + 1 + q.y1, h)];
-      } else if (style === 2 || style === 4) {
-        const ridgeHeight = style === 2 ? 1 : .68;
+      if (MODELOS_GABLE.has(style)) {
+        const roofHeight = style === 2 ? 1 : style === 4 ? .68 : .78;
         const A = P(x - q.x0, y - q.y0, h), B = P(x + 1 + q.x1, y - q.y0, h);
         const C = P(x + 1 + q.x1, y + 1 + q.y1, h), D = P(x - q.x0, y + 1 + q.y1, h);
-        const ridgeL = P(x + .5, y - q.y0, h + ridgeHeight), ridgeR = P(x + .5, y + 1 + q.y1, h + ridgeHeight);
+        const ridgeL = P(x + .5, y - q.y0, h + roofHeight), ridgeR = P(x + .5, y + 1 + q.y1, h + roofHeight);
         if (pip([A, ridgeL, ridgeR, D], mx, my) || pip([ridgeL, B, C, ridgeR], mx, my)) return y * N + x;
+      } else if (style === 14) {
+        roof = [P(x - q.x0, y - q.y0, h), P(x + .5, y + .5, h + .95), P(x + 1 + q.x1, y - q.y0, h), P(x + 1 + q.x1, y + 1 + q.y1, h), P(x - q.x0, y + 1 + q.y1, h)];
       } else {
         roof = [P(x, y, h + .22), P(x + 1, y, h + .22), P(x + 1, y + 1, h + .22), P(x, y + 1, h + .22)];
       }
       if (roof && pip(roof, mx, my)) return y * N + x;
     }
-    if (h && pip([P(x, y, h), P(x + 1, y, h), P(x + 1, y, 0), P(x + 1, y + 1, 0), P(x, y + 1, 0), P(x, y + 1, h)], mx, my)) return y * N + x;
+    if (h) {
+      const sides = [
+        { depth: cos + sin, points: [P(x + 1, y, h), P(x + 1, y + 1, h), P(x + 1, y + 1, 0), P(x + 1, y, 0)] },
+        { depth: -cos - sin, points: [P(x, y, h), P(x, y + 1, h), P(x, y + 1, 0), P(x, y, 0)] },
+        { depth: cos - sin, points: [P(x, y + 1, h), P(x + 1, y + 1, h), P(x + 1, y + 1, 0), P(x, y + 1, 0)] },
+        { depth: sin - cos, points: [P(x, y, h), P(x + 1, y, h), P(x + 1, y, 0), P(x, y, 0)] }
+      ];
+      if (sides.some(side => side.depth > 1e-5 && pip(side.points, mx, my))) return y * N + x;
+    }
   }
   const u = (mx - OX) / (TW / 2), v = (my - OY) / (TH / 2);
   const [gx, gy] = pontoMundo((u + v) / 2, (v - u) / 2).map(Math.floor);
   return gx >= 0 && gy >= 0 && gx < N && gy < N ? gy * N + gx : -1;
 }
 
-cv.addEventListener("pointermove", e => { keyboardNav = false; hov = pick(e); });
-cv.addEventListener("pointerleave", () => { keyboardNav = false; hov = -1; });
+cv.addEventListener("pointermove", e => {
+  keyboardNav = false;
+  if (cameraDrag && e.pointerId === cameraDrag.pointerId) {
+    const angle = anguloNoCanvas(e);
+    const delta = normalizarDeltaGraus(angle - cameraDrag.lastAngle);
+    if (!cameraDrag.dragging && Math.hypot(e.clientX - cameraDrag.startX, e.clientY - cameraDrag.startY) > 5) {
+      cameraDrag.dragging = true;
+      cv.classList.add("camera-dragging");
+    }
+    if (cameraDrag.dragging) {
+      cameraDegrees = (cameraDegrees + delta + 360) % 360;
+      atualizarDirecaoCamera();
+      cameraDrag.lastAngle = angle;
+      hov = -1;
+    }
+    return;
+  }
+  hov = pick(e);
+});
+cv.addEventListener("pointerleave", () => { if (!cameraDrag) { keyboardNav = false; hov = -1; } });
 cv.addEventListener("wheel", e => {
   if (!e.shiftKey) return;
   e.preventDefault(); girarCamera(e.deltaY > 0 ? 1 : -1);
 }, { passive: false });
 cv.addEventListener("pointerdown", e => {
   cv.focus({ preventScroll: true });
+  if (e.button === 0 && e.pointerType === "mouse") {
+    cameraDrag = { pointerId: e.pointerId, startX: e.clientX, startY: e.clientY, lastAngle: anguloNoCanvas(e), dragging: false };
+    cv.setPointerCapture(e.pointerId);
+    return;
+  }
   const cell = pick(e);
   if (cell >= 0) selected = cell;
   hov = cell;
   agir(cell, demo || e.button === 2);
 });
+cv.addEventListener("pointerup", e => {
+  if (!cameraDrag || e.pointerId !== cameraDrag.pointerId) return;
+  const wasDragging = cameraDrag.dragging;
+  cameraDrag = null;
+  cv.classList.remove("camera-dragging");
+  if (wasDragging) {
+    salvarProgresso();
+    hov = -1;
+    return;
+  }
+  const cell = pick(e);
+  if (cell >= 0) selected = cell;
+  hov = cell;
+  agir(cell, demo);
+});
+cv.addEventListener("pointercancel", () => { cameraDrag = null; cv.classList.remove("camera-dragging"); });
 cv.addEventListener("contextmenu", e => e.preventDefault());
 prepararControlesCriativos();
 $("btnSettingsIntro").addEventListener("click", () => abrirConfiguracoes("inicio"));
