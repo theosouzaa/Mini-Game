@@ -76,6 +76,7 @@
                 <path d="m8 5 12 7-12 7z" />
                 <path d="M5 4v16" />
               </svg></span>Começar a construir</button>
+          <div class="intro-actions"><button class="tool" id="btnIlhasIntro" type="button">Minhas ilhas</button><button class="tool" id="btnConquistasIntro" type="button">Conquistas</button></div>
           <button class="btn resume-btn" id="btnContinuar" type="button" hidden><svg class="button-icon"
               viewBox="0 0 24 24" aria-hidden="true">
               <path d="M12 7v5l3.5 2" />
@@ -89,7 +90,7 @@
                 d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-1.8 3.1-.2-.1a1.7 1.7 0 0 0-1.8.1 1.7 1.7 0 0 0-.9 1.5v.2h-3.6v-.2a1.7 1.7 0 0 0-.9-1.5 1.7 1.7 0 0 0-1.8-.1l-.2.1-1.8-3.1.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H5.4v-3.6h.2a1.7 1.7 0 0 0 1.5-1 1.7 1.7 0 0 0-.3-1.9l-.1-.1 1.8-3.1.2.1a1.7 1.7 0 0 0 1.8-.1 1.7 1.7 0 0 0 .9-1.5v-.2H15v.2a1.7 1.7 0 0 0 .9 1.5 1.7 1.7 0 0 0 1.8.1l.2-.1 1.8 3.1-.1.1a1.7 1.7 0 0 0-.3 1.9 1.7 1.7 0 0 0 1.5 1h.2V14h-.2a1.7 1.7 0 0 0-1.4 1Z" />
             </svg><span>Configurações</span></button>
           <div class="map-controls" id="mapControls" role="group" aria-label="Controles da câmera">
-            <span class="map-size">Mapa <b id="mapSize">15 × 15</b></span>
+            <span class="map-size">Mapa <b id="mapSize">19 × 19</b></span>
             <span class="camera-direction" id="cameraDirection" aria-live="polite">Vista 0°</span>
             <button class="tool camera-tool" id="bRotateLeft" type="button"
               aria-label="Girar mapa 15 graus para a esquerda" title="Girar 15° à esquerda (Q)"><svg viewBox="0 0 24 24"
@@ -132,14 +133,15 @@
       </div>
       <div class="wrap">
         <canvas id="cv" tabindex="0" role="application"
-          aria-label="Tabuleiro expansivo. Clique para construir, botão direito para demolir, arraste com o botão esquerdo para girar a câmera em 360 graus, ou use as setas e Enter para jogar."
+          aria-label="Tabuleiro expansivo. Clique para construir, botão direito para demolir, arraste com o botão esquerdo para girar a câmera, Alt ou botão do meio para mover, e use a roda do mouse para aproximar ou afastar."
           aria-describedby="boardHelp"
           aria-keyshortcuts="ArrowUp ArrowDown ArrowLeft ArrowRight Enter Space D Z"></canvas>
-        <p class="sr-only" id="boardHelp">A seleção começa no centro do tabuleiro. Arraste com o botão esquerdo para
-          girar a câmera. As casas existentes podem receber novos andares até o limite de sete.</p>
+        <p class="sr-only" id="boardHelp">A seleção começa no centro do tabuleiro. Arraste com o botão esquerdo para girar, com Alt ou botão do meio para mover. Use a roda para zoom. As casas existentes podem receber novos andares até o limite de sete.</p>
         <div id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
       </div>
       <div class="tools" role="group" aria-label="Ferramentas da partida">
+        <button class="tool" id="btnIlhasGame" type="button">Ilhas</button>
+        <button class="tool" id="btnConquistasGame" type="button">Conquistas</button>
         <button class="tool on" id="bBuild" aria-pressed="true"><svg viewBox="0 0 24 24" aria-hidden="true">
             <path d="m3 10.8 9-7.3 9 7.3v9.7a1 1 0 0 1-1 1h-5.5v-6h-5v6H4a1 1 0 0 1-1-1z" />
             <path d="M9.5 21v-4.5h5V21M12 3.5v4" />
@@ -152,9 +154,7 @@
             <path d="M8 7 3 12l5 5" />
             <path d="M3 12h10a7 7 0 1 1-6.5 9" />
           </svg>Desfazer</button>
-        <button class="tool sound-tool" id="bSom" aria-label="Desativar som" aria-pressed="true"><svg <label
-            class="setting-row" for="settingCreative"><span><b>Modo livre</b><small>Blocos infinitos e sem derrota por
-                recursos</small></span><input id="settingCreative" type="checkbox" role="switch"></label>
+        <button class="tool sound-tool" id="bSom" type="button" aria-label="Desativar som" aria-pressed="true"><svg
             viewBox="0 0 24 24" aria-hidden="true">
             <path d="M3 9v6h4l5 4V5L7 9z" />
             <path d="M15 9a4 4 0 0 1 0 6m3-9a8 8 0 0 1 0 12" />
@@ -231,6 +231,19 @@
       <footer class="settings-footer"><button class="reset-settings" id="btnResetSettings" type="button">Restaurar
           padrões</button><button class="btn settings-done" type="submit" value="close">Concluído</button></footer>
     </form>
+  </dialog>
+  <dialog id="townsDialog" aria-labelledby="townsTitle">
+    <form method="dialog" class="settings-panel" id="townsForm">
+      <header class="settings-header"><div><p class="studio-name">Maré Mansa Studio</p><h2 id="townsTitle">Minhas ilhas</h2></div><button class="settings-close" type="submit" value="close" aria-label="Fechar">×</button></header>
+      <p class="settings-description">Salve até oito vilarejos, retome uma ilha ou exporte uma imagem PNG.</p>
+      <label class="town-field">Ilha salva<select id="townSelect"></select></label>
+      <label class="town-field">Nome da ilha<input id="townName" maxlength="32" placeholder="Ex.: Vila das Conchas"></label>
+      <div class="town-actions"><button class="tool" type="button" id="townSave">Salvar nova</button><button class="tool" type="button" id="townLoad">Abrir</button><button class="tool" type="button" id="townRename">Renomear</button><button class="tool" type="button" id="townDelete">Excluir</button><button class="tool" type="button" id="townExport">Exportar PNG</button></div>
+      <footer class="settings-footer"><button class="btn settings-done" type="submit" value="close">Concluído</button></footer>
+    </form>
+  </dialog>
+  <dialog id="achievementsDialog" aria-labelledby="achievementsTitle">
+    <form method="dialog" class="settings-panel"><header class="settings-header"><div><p class="studio-name">Maré Mansa Studio</p><h2 id="achievementsTitle">Conquistas</h2></div><button class="settings-close" type="submit" value="close" aria-label="Fechar">×</button></header><p class="settings-description">Pequenas histórias que você construiu pelo caminho.</p><ul id="achievementList" class="achievement-list"></ul><footer class="settings-footer"><button class="btn settings-done" type="submit" value="close">Concluído</button></footer></form>
   </dialog>
   <script src="script.js"></script>
 </body>
