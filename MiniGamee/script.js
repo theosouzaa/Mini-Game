@@ -1,7 +1,7 @@
 ﻿const N = 19, MAXH = 7, TW = 72, TH = 36, FH = 28, BLOCOS = 20, BONUS = 6;
 const W = N * TW + 40, H = N * TH + MAXH * FH + 70, OX = W / 2, OY = MAXH * FH + 28;
 const CORES = ["#f2b5a7", "#f6d58b", "#b9ddc4", "#a8cbe8", "#e6c2dd", "#f1c59a", "#d4e3a0", "#f2a9b6", "#8fd0c2", "#c5b7ea", "#f4dfcf", "#8db5c8"];
-const CORES_NOMES = ["PÃªssego", "Girassol", "Menta", "Brisa", "Lavanda", "Areia", "Folha", "Coral", "Turquesa", "LilÃ¡s", "Concha", "Oceano"];
+const CORES_NOMES = ["Pêssego", "Girassol", "Menta", "Brisa", "Lavanda", "Areia", "Folha", "Coral", "Turquesa", "Lilás", "Concha", "Oceano"];
 const CORES_ACESSIVEIS = ["#e69f00", "#56b4e9", "#009e73", "#f0e442", "#0072b2", "#d55e00", "#cc79a7", "#666666", "#1b9e77", "#7570b3", "#a6761d", "#4d4d4d"];
 const TELHAS = ["#d4694f", "#4e8e9b", "#6a7db4", "#8d5c98", "#c9923f", "#557b65", "#4c667d", "#a84f4a", "#368b83", "#cf8a58", "#71659b", "#47718b"];
 const TELHAS_ACESSIVEIS = ["#8c2d04", "#01665e", "#542788", "#8c6d31", "#0571b0", "#a50026", "#4d4d4d", "#1b7837", "#005a32", "#a6611a", "#5e3c99", "#2166ac"];
@@ -10,7 +10,7 @@ const QUESTS = [
   { t: "Una 6 casas lado a lado", k: "big", n: 6 },
   { t: "Erga uma torre de 4 andares", k: "mx", n: 4 },
   { t: "Some 18 andares na ilha", k: "fl", n: 18 },
-  { t: "Una 10 casas num sÃ³ bairro", k: "big", n: 10 },
+  { t: "Una 10 casas num só bairro", k: "big", n: 10 },
   { t: "Erga uma torre de 7 andares", k: "mx", n: 7 },
   { t: "Povoe a ilha com 20 casas", k: "cs", n: 20 },
   { t: "Una 15 casas num bairro", k: "big", n: 15 },
@@ -37,7 +37,7 @@ const QUESTS = [
   { t: "Some 180 andares na ilha", k: "fl", n: 180 },
   { t: "Expanda a rede para 8 pontes", k: "bridges", n: 8 }
 ];
-const FASES = ["Primeiros lares", "Bairro unido", "Ilha em expansÃ£o", "Torres e caminhos", "Comunidade viva", "Ilha florescida"];
+const FASES = ["Primeiros lares", "Bairro unido", "Ilha em expansão", "Torres e caminhos", "Comunidade viva", "Ilha florescida"];
 const $ = id => document.getElementById(id);
 const cv = $("cv"), ctx = cv.getContext("2d");
 const dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -48,14 +48,14 @@ let grade, pts, blocos, qi, hist, som = true, demo = false, bridgeMode = false, 
 let selected = Math.floor(N / 2) * N + Math.floor(N / 2), keyboardNav = false, cameraDegrees = 0, cameraZoom = 1, cameraPanX = 0, cameraPanY = 0, selectedModel = 0, selectedColor = -1, selectedDecor = 0;
 let cameraDrag = null;
 let decorMode = false;
-const MODELOS = ["ClÃ¡ssica", "Torre", "ChalÃ©", "Varanda", "SÃ³tÃ£o", "Jardim", "PÃ¡tio", "PavilhÃ£o", "Rotunda", "Farol", "Casa de praia", "Telhado verde", "Coreto", "ObservatÃ³rio", "Telhado piramidal", "Arcada", "Escadaria"];
+const MODELOS = ["Clássica", "Torre", "Chalé", "Varanda", "Sótão", "Jardim", "Pátio", "Pavilhão", "Rotunda", "Farol", "Casa de praia", "Telhado verde", "Coreto", "Observatório", "Telhado piramidal", "Arcada", "Escadaria"];
 const MODELOS_PLANOS = new Set([1, 3, 5, 6, 7, 8, 9, 11, 12, 13, 15, 16]);
 const MODELOS_GABLE = new Set([0, 2, 4, 10]);
-const DECORACOES = ["Ãrvore", "Poste", "Barco", "Banco"];
+const DECORACOES = ["Árvore", "Poste", "Barco", "Banco"];
 const CONQUISTAS = [
   { id: "lar", nome: "Primeiro lar", detalhe: "Construa a primeira casa", libera: s => s.cs >= 1 },
   { id: "arcos", nome: "Passagem antiga", detalhe: "Construa uma casa com arcada", libera: s => s.modelos.has(15) },
-  { id: "jardim", nome: "Ilha verde", detalhe: "Coloque trÃªs Ã¡rvores", libera: s => s.arvores >= 3 },
+  { id: "jardim", nome: "Ilha verde", detalhe: "Coloque três árvores", libera: s => s.arvores >= 3 },
   { id: "ponte", nome: "Margens unidas", detalhe: "Construa quatro pontes conectadas", libera: s => s.bridges >= 4 },
   { id: "paleta", nome: "Bairro colorido", detalhe: "Use seis cores diferentes", libera: s => s.cores >= 6 },
   { id: "metropole", nome: "Cidade florescida", detalhe: "Construa 45 casas", libera: s => s.cs >= 45 }
@@ -102,7 +102,7 @@ function aplicarPreferencias() {
   $("settingAutosave").checked = preferencias.autosave;
   $("settingColorSafe").checked = preferencias.colorSafe;
   $("settingCreative").checked = preferencias.creative;
-  $("blocos").textContent = preferencias.creative ? "âˆž" : blocos;
+  $("blocos").textContent = preferencias.creative ? "∞" : blocos;
   syncSoundButton();
   atualizarBotaoContinuar();
 }
@@ -605,7 +605,7 @@ function checarConquistas() {
 }
 function atualizarListaConquistas() {
   let ids = []; try { ids = JSON.parse(localStorage.getItem("ilheu-achievements") || "[]"); } catch (e) { }
-  const list = $("achievementList"); if (list) list.innerHTML = CONQUISTAS.map(a => '<li class="' + (ids.includes(a.id) ? "unlocked" : "locked") + '"><b>' + (ids.includes(a.id) ? "âœ¦ " : "â—‡ ") + a.nome + '</b><small>' + a.detalhe + '</small></li>').join("");
+  const list = $("achievementList"); if (list) list.innerHTML = CONQUISTAS.map(a => '<li class="' + (ids.includes(a.id) ? "unlocked" : "locked") + '"><b>' + (ids.includes(a.id) ? "✦ " : "◇ ") + a.nome + '</b><small>' + a.detalhe + '</small></li>').join("");
 }
 function snapshotIlha(nome) {
   const active = grade ? { grade: grade.map(({ h, c, t, r, bridge, d }) => ({ h, c, t, r, bridge: !!bridge, d: Number.isInteger(d) ? d : -1 })), pts: pts || 0, blocos: blocos || 0, qi: qi || 0, rotation: cameraDegrees, zoom: cameraZoom, panX: cameraPanX, panY: cameraPanY } : null;
@@ -614,15 +614,15 @@ function snapshotIlha(nome) {
 function listarIlhas() { try { return JSON.parse(localStorage.getItem("ilheu-towns") || "[]").filter(x => x && x.id && x.save); } catch (e) { return []; } }
 function preencherIlhas() { const s = $("townSelect"), items = listarIlhas(); s.innerHTML = ""; items.forEach(i => s.add(new Option(i.name, i.id))); $("townLoad").disabled = !items.length; $("townRename").disabled = $("townDelete").disabled = $("townExport").disabled = !items.length; }
 function abrirIlhas() { preencherIlhas(); $("townsDialog").showModal(); }
-function registrarIlha() { const name = $("townName").value.trim(); if (!name) { aviso("DÃª um nome para sua ilha."); return; } const items = listarIlhas(); if (items.length >= 8) { aviso("VocÃª jÃ¡ tem oito ilhas salvas. Exclua uma para criar espaÃ§o."); return; } const item = snapshotIlha(name); if (!item) { aviso("Construa ou retome uma ilha antes de salvÃ¡-la."); return; } items.push(item); localStorage.setItem("ilheu-towns", JSON.stringify(items)); preencherIlhas(); $("townSelect").value = item.id; aviso("Ilha salva: " + name); }
+function registrarIlha() { const name = $("townName").value.trim(); if (!name) { aviso("Dê um nome para sua ilha."); return; } const items = listarIlhas(); if (items.length >= 8) { aviso("Você já tem oito ilhas salvas. Exclua uma para criar espaço."); return; } const item = snapshotIlha(name); if (!item) { aviso("Construa ou retome uma ilha antes de salvá-la."); return; } items.push(item); localStorage.setItem("ilheu-towns", JSON.stringify(items)); preencherIlhas(); $("townSelect").value = item.id; aviso("Ilha salva: " + name); }
 function ilhaSelecionada() { return listarIlhas().find(i => i.id === $("townSelect").value); }
-function aplicarIlha(item) { if (!item) return; const prior = localStorage.getItem("ilheu-save"); let loaded = false; try { localStorage.setItem("ilheu-save", JSON.stringify(item.save)); const s = lerProgresso(); if (!s) { aviso("Este arquivo de ilha estÃ¡ invÃ¡lido."); return; } grade = s.grade; pts = s.pts; blocos = s.blocos; qi = s.qi; cameraDegrees = s.rotation; cameraZoom = s.zoom; cameraPanX = s.panX; cameraPanY = s.panY; hist = []; over = false; hud(); atualizarDirecaoCamera(); tela("jogo"); cv.focus(); salvarProgresso(); $("townsDialog").close(); loaded = true; } finally { if (!loaded) { if (prior === null) localStorage.removeItem("ilheu-save"); else localStorage.setItem("ilheu-save", prior); } } }
+function aplicarIlha(item) { if (!item) return; const prior = localStorage.getItem("ilheu-save"); let loaded = false; try { localStorage.setItem("ilheu-save", JSON.stringify(item.save)); const s = lerProgresso(); if (!s) { aviso("Este arquivo de ilha está inválido."); return; } grade = s.grade; pts = s.pts; blocos = s.blocos; qi = s.qi; cameraDegrees = s.rotation; cameraZoom = s.zoom; cameraPanX = s.panX; cameraPanY = s.panY; hist = []; over = false; hud(); atualizarDirecaoCamera(); tela("jogo"); cv.focus(); salvarProgresso(); $("townsDialog").close(); loaded = true; } finally { if (!loaded) { if (prior === null) localStorage.removeItem("ilheu-save"); else localStorage.setItem("ilheu-save", prior); } } }
 function exportarIlha() {
   const item = ilhaSelecionada(); if (!item) return;
   const previousSave = localStorage.getItem("ilheu-save"); let save;
   try { localStorage.setItem("ilheu-save", JSON.stringify(item.save)); save = lerProgresso(); }
   finally { if (previousSave === null) localStorage.removeItem("ilheu-save"); else localStorage.setItem("ilheu-save", previousSave); }
-  if (!save) { aviso("Este arquivo de ilha est? inv?lido."); return; }
+  if (!save) { aviso("Este arquivo de ilha está inválido."); return; }
   const previous = { grade, pts, blocos, qi, cameraDegrees, cameraZoom, cameraPanX, cameraPanY, hov, keyboardNav, demo, bridgeMode, decorMode };
   try {
     grade = save.grade; pts = save.pts; blocos = save.blocos; qi = save.qi; cameraDegrees = save.rotation; cameraZoom = save.zoom; cameraPanX = save.panX; cameraPanY = save.panY; hov = -1; keyboardNav = false; demo = bridgeMode = decorMode = false;
@@ -630,7 +630,7 @@ function exportarIlha() {
     for (let x = 0; x < N; x++)for (let y = 0; y < N; y++)poly([P(x, y, 0), P(x + 1, y, 0), P(x + 1, y + 1, 0), P(x, y + 1, 0)], "rgba(255,255,255,.06)", "rgba(255,255,255,.07)");
     ordemProfundidade().forEach(i => celula(i % N, Math.floor(i / N), 0));
     const link = document.createElement("a"); link.download = (item.name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/gi, "-").replace(/^-|-$/g, "") || "ilha") + ".png";
-    cv.toBlob(blob => { if (!blob) { aviso("N?o foi poss?vel exportar a imagem."); return; } link.href = URL.createObjectURL(blob); link.click(); setTimeout(() => URL.revokeObjectURL(link.href), 1000); }, "image/png");
+    cv.toBlob(blob => { if (!blob) { aviso("Não foi possível exportar a imagem."); return; } link.href = URL.createObjectURL(blob); link.click(); setTimeout(() => URL.revokeObjectURL(link.href), 1000); }, "image/png");
   } finally {
     grade = previous.grade; pts = previous.pts; blocos = previous.blocos; qi = previous.qi; cameraDegrees = previous.cameraDegrees; cameraZoom = previous.cameraZoom; cameraPanX = previous.cameraPanX; cameraPanY = previous.cameraPanY; hov = previous.hov; keyboardNav = previous.keyboardNav; demo = previous.demo; bridgeMode = previous.bridgeMode; decorMode = previous.decorMode;
     if ($("jogo").classList.contains("on")) requestAnimationFrame(desenhar);
@@ -665,14 +665,14 @@ function iniciar(retomar = false) {
   pts = 0; blocos = BLOCOS; qi = 0; hist = []; floats = []; over = false; demo = false; bridgeMode = false;
   cameraDegrees = save ? save.rotation : 0;
   cameraZoom = save ? save.zoom : 1; cameraPanX = save ? save.panX : 0; cameraPanY = save ? save.panY : 0;
-  if ($("mapSize")) $("mapSize").textContent = N + " Ã— " + N;
-  cv.setAttribute("aria-label", "Tabuleiro expansivo de " + N + " por " + N + " cÃ©lulas. Use as setas para navegar e Enter para construir. Pressione Shift e use a roda do mouse para girar a cÃ¢mera.");
+  if ($("mapSize")) $("mapSize").textContent = N + " × " + N;
+  cv.setAttribute("aria-label", "Tabuleiro expansivo de " + N + " por " + N + " células. Use as setas para navegar e Enter para construir. Pressione Shift e use a roda do mouse para girar a câmera.");
   cv.setAttribute("aria-keyshortcuts", "ArrowUp ArrowDown ArrowLeft ArrowRight Enter Space D Z M Q E");
   if (save) { grade = save.grade; pts = save.pts; blocos = save.blocos; qi = save.qi; }
   $("bBuild").classList.add("on"); $("bBridge").classList.remove("on"); $("bDemo").classList.remove("on");
   $("bBuild").setAttribute("aria-pressed", "true"); $("bBridge").setAttribute("aria-pressed", "false"); $("bDemo").setAttribute("aria-pressed", "false");
   atualizarDirecaoCamera();
-  $("tip").textContent = "Empilhe e conecte casas Â· Ponte liga duas margens alinhadas Â· M muda o modelo Â· escolha a cor nos controles Â· Q/E gira a cÃ¢mera Â· Z desfaz";
+  $("tip").textContent = "Empilhe e conecte casas · Ponte liga duas margens alinhadas · M muda o modelo · escolha a cor nos controles · Q/E gira a câmera · Z desfaz";
   selected = Math.floor(N / 2) * N + Math.floor(N / 2); keyboardNav = false;
   syncSoundButton();
   hud(); tela("jogo"); cv.focus(); atualizarBotaoContinuar();
@@ -694,11 +694,11 @@ function agir(i, dem) {
     bip(200, .18);
     if (preferencias.motion) floats.push({ x, y, z: c.h + .5, s: c.bridge ? "-Ponte" : "-5", t: performance.now() });
   } else if (decorMode) {
-    if (selectedDecor === 2 && (c.h || c.bridge)) { aviso("Barcos precisam de uma cÃ©lula livre na Ã¡gua."); return; }
+    if (selectedDecor === 2 && (c.h || c.bridge)) { aviso("Barcos precisam de uma célula livre na água."); return; }
     salvar(); c.d = selectedDecor; bip(520, .12);
   } else if (bridgeMode) {
     if (c.h || c.bridge || (!preferencias.creative && blocos <= 0)) return;
-    if (!ponteConectaCasas(i)) { aviso("Coloque a ponte num vÃ£o entre duas casas ou caminhos conectados."); return; }
+    if (!ponteConectaCasas(i)) { aviso("Coloque a ponte num vão entre duas casas ou caminhos conectados."); return; }
     salvar(); c.bridge = true;
     if (!preferencias.creative) blocos--;
     pts += 4; bip(460, .16);
@@ -734,11 +734,11 @@ function verificar() {
 function fim(vitoria) {
   apagarProgresso();
   const score = pts, melhorPontuacao = melhor(score);
-  $("fimTitulo").textContent = vitoria ? "Um novo lar floresceu" : "A ilha ainda precisa de vocÃª";
-  $("fimTexto").textContent = vitoria ? "VocÃª realizou os pedidos dos moradores e reconstruiu o ilhÃ©u." : "Seus blocos acabaram. Cada casa que vocÃª construiu jÃ¡ fez a diferenÃ§a.";
+  $("fimTitulo").textContent = vitoria ? "Um novo lar floresceu" : "A ilha ainda precisa de você";
+  $("fimTexto").textContent = vitoria ? "Você realizou os pedidos dos moradores e reconstruiu o ilhéu." : "Seus blocos acabaram. Cada casa que você construiu já fez a diferença.";
   $("fimPts").textContent = score;
-  $("fimInfo").textContent = vitoria ? "Desafios concluÃ­dos: " + QUESTS.length + " de " + QUESTS.length : "Desafios concluÃ­dos: " + qi + " de " + QUESTS.length;
-  $("fimBest").textContent = "Melhor pontuaÃ§Ã£o: " + melhorPontuacao;
+  $("fimInfo").textContent = vitoria ? "Desafios concluídos: " + QUESTS.length + " de " + QUESTS.length : "Desafios concluídos: " + qi + " de " + QUESTS.length;
+  $("fimBest").textContent = "Melhor pontuação: " + melhorPontuacao;
   const estrelas = vitoria ? 3 : Math.min(2, Math.floor(qi / 3));
   $("fimStars").innerHTML = Array.from({ length: 3 }, (_, i) => '<span class="' + (i < estrelas ? "" : "off") + '" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m12 2.7 2.8 5.7 6.3.9-4.6 4.5 1.1 6.4-5.6-3-5.6 3 1.1-6.4-4.6-4.5 6.3-.9z"/></svg></span>').join("");
   $("fimStars").setAttribute("aria-label", estrelas + " de 3 estrelas");
@@ -746,10 +746,10 @@ function fim(vitoria) {
 }
 function hud() {
   const s = stats();
-  $("pts").textContent = pts; $("blocos").textContent = preferencias.creative ? "âˆž" : blocos; $("casas").textContent = s.cs;
+  $("pts").textContent = pts; $("blocos").textContent = preferencias.creative ? "∞" : blocos; $("casas").textContent = s.cs;
   const q = QUESTS[Math.min(qi, QUESTS.length - 1)], v = Math.min(q.n, s[q.k]);
   const fase = Math.min(Math.floor(qi / 5), FASES.length - 1);
-  $("qn").textContent = "Fase " + (fase + 1) + "/" + FASES.length + " Â· " + FASES[fase] + " Â· Desafio " + (qi % 5 + 1) + "/5";
+  $("qn").textContent = "Fase " + (fase + 1) + "/" + FASES.length + " · " + FASES[fase] + " · Desafio " + (qi % 5 + 1) + "/5";
   $("qtxt").textContent = q.t; $("qnum").textContent = v + " / " + q.n;
   $("qfill").style.width = (v / q.n * 100) + "%";
   $("qbar").setAttribute("aria-valuenow", Math.round(v / q.n * 100));
@@ -757,14 +757,14 @@ function hud() {
 }
 function anunciarSelecao() {
   const x = selected % N, y = Math.floor(selected / N), c = grade[selected];
-  const estado = c.bridge ? "ponte" : c.h ? c.h + (c.h === 1 ? " andar" : " andares") : "Ã¡rea livre";
+  const estado = c.bridge ? "ponte" : c.h ? c.h + (c.h === 1 ? " andar" : " andares") : "área livre";
   const modeName = demo ? "demolir" : bridgeMode ? "construir ponte" : "construir";
   $("gameStatus").textContent = "Linha " + (y + 1) + ", coluna " + (x + 1) + ", " + estado + ". Modo " + modeName + ".";
 }
 
 function atualizarDirecaoCamera() {
   const angle = ((Math.round(cameraDegrees) % 360) + 360) % 360;
-  $("cameraDirection").textContent = "Vista " + angle + "Â°";
+  $("cameraDirection").textContent = "Vista " + angle + "°";
 }
 function girarCamera(turns) {
   cameraDegrees = (cameraDegrees + turns * 15 + 360) % 360;
@@ -807,30 +807,30 @@ function prepararControlesCriativos() {
   ponte.setAttribute("aria-pressed", "false");
   ponte.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 16c3-8 15-8 18 0M4 17h16M6 13l-2-2m6-2-1-3m7 3 1-3m1 7 3-2M8 16v3m8-3v3"/></svg><span>Ponte</span>';
   toolbar.insertBefore(ponte, $("bDemo"));
-  const decor = document.createElement("button"); decor.type = "button"; decor.id = "bDecor"; decor.className = "tool"; decor.setAttribute("aria-pressed", "false"); decor.innerHTML = '<span aria-hidden="true">ðŸŒ¿</span> Decorar';
+  const decor = document.createElement("button"); decor.type = "button"; decor.id = "bDecor"; decor.className = "tool"; decor.setAttribute("aria-pressed", "false"); decor.innerHTML = '<span aria-hidden="true">🌿</span> Decorar';
   toolbar.insertBefore(decor, $("bDemo"));
-  const decorPicker = document.createElement("label"); decorPicker.className = "model-picker"; decorPicker.innerHTML = '<span>DecoraÃ§Ã£o</span><select id="decorPicker" aria-label="Escolha decoraÃ§Ã£o"></select>';
+  const decorPicker = document.createElement("label"); decorPicker.className = "model-picker"; decorPicker.innerHTML = '<span>Decoração</span><select id="decorPicker" aria-label="Escolha decoração"></select>';
   DECORACOES.forEach((nome, i) => decorPicker.querySelector("select").add(new Option(nome, String(i))));
   decorPicker.querySelector("select").addEventListener("change", e => { selectedDecor = Number(e.target.value); modo("decor"); });
   toolbar.insertBefore(decorPicker, $("btnSettingsGame"));
 
   const picker = document.createElement("label");
   picker.className = "model-picker";
-  picker.innerHTML = '<span>Modelo</span><select id="modelPicker" aria-label="Modelo da prÃ³xima construÃ§Ã£o"></select>';
+  picker.innerHTML = '<span>Modelo</span><select id="modelPicker" aria-label="Modelo da próxima construção"></select>';
   const select = picker.querySelector("select");
   MODELOS.forEach((nome, index) => select.add(new Option(nome, String(index))));
   select.value = String(selectedModel);
   select.addEventListener("change", () => {
     selectedModel = Number(select.value);
-    aviso("PrÃ³xima construÃ§Ã£o: " + MODELOS[selectedModel]);
+    aviso("Próxima construção: " + MODELOS[selectedModel]);
   });
   toolbar.insertBefore(picker, $("btnSettingsGame"));
 
   const colorPicker = document.createElement("label");
   colorPicker.className = "model-picker color-picker";
-  colorPicker.innerHTML = '<span>Cor</span><select id="colorPicker" aria-label="Cor das prÃ³ximas casas"></select>';
+  colorPicker.innerHTML = '<span>Cor</span><select id="colorPicker" aria-label="Cor das próximas casas"></select>';
   const colorSelect = colorPicker.querySelector("select");
-  colorSelect.add(new Option("AleatÃ³ria", "-1"));
+  colorSelect.add(new Option("Aleatória", "-1"));
   CORES_NOMES.forEach((nome, index) => {
     const option = new Option(nome, String(index));
     option.style.backgroundColor = CORES[index];
@@ -839,7 +839,7 @@ function prepararControlesCriativos() {
   colorSelect.value = String(selectedColor);
   colorSelect.addEventListener("change", () => {
     selectedColor = Number(colorSelect.value);
-    aviso(selectedColor < 0 ? "PrÃ³ximas casas: cores variadas" : "PrÃ³ximas casas: " + CORES_NOMES[selectedColor]);
+    aviso(selectedColor < 0 ? "Próximas casas: cores variadas" : "Próximas casas: " + CORES_NOMES[selectedColor]);
   });
   toolbar.insertBefore(colorPicker, $("btnSettingsGame"));
 
@@ -847,8 +847,8 @@ function prepararControlesCriativos() {
   if (oldCamera) oldCamera.remove();
   const camera = document.createElement("div");
   camera.className = "map-controls"; camera.id = "mapControls";
-  camera.setAttribute("role", "group"); camera.setAttribute("aria-label", "Controles da cÃ¢mera");
-  camera.innerHTML = '<span class="map-size">Mapa <b id="mapSize">' + N + ' Ã— ' + N + '</b></span><span class="camera-direction" id="cameraDirection" aria-live="polite">Vista 0Â°</span><button class="tool camera-tool" id="bZoomOut" type="button" aria-label="Diminuir zoom">âˆ’</button><button class="tool camera-tool" id="bZoomIn" type="button" aria-label="Aumentar zoom">+</button><button class="tool camera-tool" id="bResetView" type="button" aria-label="Centralizar cÃ¢mera">Centralizar</button><button class="tool camera-tool" id="bRotateLeft" type="button" aria-label="Girar mapa 15 graus para a esquerda" title="Girar 15Â° Ã  esquerda (Q)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10V4m0 0h6M4 4l4 4a8 8 0 1 1-2 8"/></svg><span>â†¶ 15Â°</span></button><button class="tool camera-tool" id="bRotateRight" type="button" aria-label="Girar mapa 15 graus para a direita" title="Girar 15Â° Ã  direita (E)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 10V4m0 0h-6m6 0-4 4a8 8 0 1 0 2 8"/></svg><span>â†· 15Â°</span></button>';
+  camera.setAttribute("role", "group"); camera.setAttribute("aria-label", "Controles da câmera");
+  camera.innerHTML = '<span class="map-size">Mapa <b id="mapSize">' + N + ' × ' + N + '</b></span><span class="camera-direction" id="cameraDirection" aria-live="polite">Vista 0°</span><button class="tool camera-tool" id="bZoomOut" type="button" aria-label="Diminuir zoom">−</button><button class="tool camera-tool" id="bZoomIn" type="button" aria-label="Aumentar zoom">+</button><button class="tool camera-tool" id="bResetView" type="button" aria-label="Centralizar câmera">Centralizar</button><button class="tool camera-tool" id="bRotateLeft" type="button" aria-label="Girar mapa 15 graus para a esquerda" title="Girar 15° à esquerda (Q)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10V4m0 0h6M4 4l4 4a8 8 0 1 1-2 8"/></svg><span>↶ 15°</span></button><button class="tool camera-tool" id="bRotateRight" type="button" aria-label="Girar mapa 15 graus para a direita" title="Girar 15° à direita (E)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 10V4m0 0h-6m6 0-4 4a8 8 0 1 0 2 8"/></svg><span>↷ 15°</span></button>';
   toolbar.parentNode.insertBefore(camera, toolbar);
 
   const creativeInput = $("settingCreative");
@@ -856,7 +856,7 @@ function prepararControlesCriativos() {
   if (creativeGroup) {
     const row = creativeInput && creativeInput.closest(".setting-row") || document.createElement("label");
     row.className = "setting-row"; row.htmlFor = "settingCreative";
-    row.innerHTML = '<span><b>Modo livre</b><small>Blocos infinitos e espaÃ§o para criar sem objetivos</small></span><input id="settingCreative" type="checkbox" role="switch">';
+    row.innerHTML = '<span><b>Modo livre</b><small>Blocos infinitos e espaço para criar sem objetivos</small></span><input id="settingCreative" type="checkbox" role="switch">';
     creativeGroup.appendChild(row);
   }
 }
@@ -1036,4 +1036,3 @@ aplicarPreferencias();
 atualizarBotaoContinuar();
 atualizarDirecaoCamera();
 requestAnimationFrame(desenhar);
-
