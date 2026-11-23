@@ -47,7 +47,7 @@ O projeto foi desenvolvido pelo **Maré Mansa Studio** e roda direto no navegado
     <td align="center" width="140"><img src="https://api.iconify.design/lucide/house.svg?color=%234b9da2" width="28" alt=""><br><b>23</b><br><sub>modelos de casa</sub></td>
     <td align="center" width="140"><img src="https://api.iconify.design/lucide/palette.svg?color=%234b9da2" width="28" alt=""><br><b>12</b><br><sub>cores</sub></td>
     <td align="center" width="140"><img src="https://api.iconify.design/lucide/target.svg?color=%234b9da2" width="28" alt=""><br><b>60</b><br><sub>desafios em 12 fases</sub></td>
-    <td align="center" width="140"><img src="https://api.iconify.design/lucide/trophy.svg?color=%234b9da2" width="28" alt=""><br><b>6</b><br><sub>conquistas</sub></td>
+    <td align="center" width="140"><img src="https://api.iconify.design/lucide/trophy.svg?color=%234b9da2" width="28" alt=""><br><b>14</b><br><sub>conquistas ilustradas</sub></td>
   </tr>
 </table>
 
@@ -128,7 +128,7 @@ python -m http.server 8000
 | :-: | ------- | -------- |
 | <img src="https://api.iconify.design/lucide/target.svg?color=%234b9da2" width="22" alt=""> | **Campanha** | 60 desafios em 12 fases, com metas de casas, bairros, torres, andares e pontes |
 | <img src="https://api.iconify.design/lucide/star.svg?color=%234b9da2" width="22" alt=""> | **Avaliação** | Até 3 estrelas no final, com a melhor pontuação guardada |
-| <img src="https://api.iconify.design/lucide/trophy.svg?color=%234b9da2" width="22" alt=""> | **Conquistas** | 6 conquistas desbloqueáveis |
+| <img src="https://api.iconify.design/lucide/trophy.svg?color=%234b9da2" width="22" alt=""> | **Conquistas** | 14 conquistas desbloqueáveis, cada uma com emblema SVG exclusivo e aviso sonoro na partida |
 | <img src="https://api.iconify.design/lucide/infinity.svg?color=%234b9da2" width="22" alt=""> | **Modo livre** | Blocos infinitos para criar sem se preocupar com recursos |
 | <img src="https://api.iconify.design/lucide/users.svg?color=%234b9da2" width="22" alt=""> | **Moradores e bem-estar** | Pequenos moradores circulam entre as casas; o indicador considera casas e elementos de convivência |
 
@@ -255,6 +255,14 @@ Os desafios variam entre construir casas, **unir casas num mesmo bairro** (conec
 | <img src="https://api.iconify.design/lucide/route.svg?color=%234b9da2" width="20" alt=""> | **Margens unidas** | Construa quatro pontes conectadas |
 | <img src="https://api.iconify.design/lucide/palette.svg?color=%234b9da2" width="20" alt=""> | **Bairro colorido** | Use seis cores diferentes |
 | <img src="https://api.iconify.design/lucide/building-2.svg?color=%234b9da2" width="20" alt=""> | **Cidade florescida** | Construa 45 casas |
+| 🌳 | **Guardião do bosque** | Plante oito árvores |
+| 🌸 | **Jardim em festa** | Decore oito espaços com flores |
+| 💡 | **Luzes da vila** | Instale cinco postes de luz |
+| 🏛️ | **Mestre das formas** | Construa usando dez modelos diferentes |
+| 🔦 | **Guardião da costa** | Construa um farol |
+| 🌈 | **Paleta completa** | Use dez cores diferentes |
+| 🌉 | **Grande travessia** | Construa oito pontes |
+| 🏙️ | **Grande cidade** | Construa 80 casas |
 
 ---
 

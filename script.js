@@ -93,6 +93,7 @@ let selected = Math.floor(N / 2) * N + Math.floor(N / 2), keyboardNav = false, c
 let cameraDrag = null;
 let decorMode = false;
 let nightAmount = 0;
+let renderFrame = 0;
 const MODELOS = ["Clássica", "Torre", "Chalé", "Varanda", "Sótão", "Jardim", "Pátio", "Pavilhão", "Rotunda", "Farol", "Casa de praia", "Telhado verde", "Coreto", "Observatório", "Telhado piramidal", "Arcada", "Escadaria", "Moinho", "Estufa", "Pagode", "Cabana", "Casa-barco", "Solar"];
 const MODELOS_PLANOS = new Set([1, 3, 5, 6, 7, 8, 9, 11, 12, 13, 15, 16, 18, 19, 21, 22]);
 const MODELOS_GABLE = new Set([0, 2, 4, 10, 17, 20]);
@@ -103,8 +104,34 @@ const CONQUISTAS = [
   { id: "jardim", nome: "Ilha verde", detalhe: "Coloque três árvores", libera: s => s.arvores >= 3 },
   { id: "ponte", nome: "Margens unidas", detalhe: "Construa quatro pontes conectadas", libera: s => s.bridges >= 4 },
   { id: "paleta", nome: "Bairro colorido", detalhe: "Use seis cores diferentes", libera: s => s.cores >= 6 },
-  { id: "metropole", nome: "Cidade florescida", detalhe: "Construa 45 casas", libera: s => s.cs >= 45 }
+  { id: "metropole", nome: "Cidade florescida", detalhe: "Construa 45 casas", libera: s => s.cs >= 45 },
+  { id: "botanico", nome: "Guardião do bosque", detalhe: "Plante oito árvores", libera: s => s.arvores >= 8 },
+  { id: "florada", nome: "Jardim em festa", detalhe: "Decore oito espaços com flores", libera: s => s.flores >= 8 },
+  { id: "iluminada", nome: "Luzes da vila", detalhe: "Instale cinco postes de luz", libera: s => s.postes >= 5 },
+  { id: "arquiteto", nome: "Mestre das formas", detalhe: "Construa usando dez modelos diferentes", libera: s => s.modelos.size >= 10 },
+  { id: "faroleiro", nome: "Guardião da costa", detalhe: "Construa um farol", libera: s => s.modelos.has(9) },
+  { id: "arcoiris", nome: "Paleta completa", detalhe: "Use dez cores diferentes", libera: s => s.cores >= 10 },
+  { id: "conector", nome: "Grande travessia", detalhe: "Construa oito pontes", libera: s => s.bridges >= 8 },
+  { id: "solar", nome: "Grande cidade", detalhe: "Construa 80 casas", libera: s => s.cs >= 80 }
 ];
+const CONQUISTA_ARTE = {
+  lar: '<path d="m4 11 8-7 8 7v9h-6v-6h-4v6H4z"/>',
+  arcos: '<path d="M4 20V9a8 8 0 0 1 16 0v11M8 20v-9a4 4 0 0 1 8 0v9M2 20h20"/>',
+  jardim: '<path d="M12 20V9m0 4c-6 0-8-3-8-7 5 0 8 2 8 7Zm0-3c0-5 3-8 8-8 0 5-2 8-8 8Z"/>',
+  ponte: '<path d="M3 17c3-8 15-8 18 0M4 18h16M7 14v4m5-6v6m5-4v4"/>',
+  paleta: '<circle cx="12" cy="12" r="9"/><circle cx="8" cy="9" r="1"/><circle cx="13" cy="7" r="1"/><circle cx="17" cy="11" r="1"/><path d="M13 17c0-2 3-2 3-4"/>',
+  metropole: '<path d="M4 20V9l5-3 5 3v11M14 20V5l3-2 3 2v15M2 20h20M7 12h1m3 0h1m-5 4h1m3 0h1m6-7h1m-1 4h1"/>',
+  botanico: '<path d="M12 21V11m0 6C6 17 4 13 4 9c5 0 8 2 8 8Zm0-5c0-5 3-9 8-9 0 5-2 9-8 9Z"/><path d="M8 21h8"/>',
+  florada: '<path d="M12 12c-4-5 2-8 2-3 4-5 8 1 3 3 5 4-1 8-3 3-4 5-8-1-3-3-5-4 1-8 3-3Z"/><circle cx="12" cy="12" r="2"/><path d="M12 14v7m-4 0h8"/>',
+  iluminada: '<path d="M12 3v3m0 12v3m-3-7a3 3 0 1 1 6 0c0 2-1.5 2-1.5 4h-3C10.5 16 9 16 9 14Zm1 7h4"/>',
+  arquiteto: '<path d="M4 20V8l4-3 4 3v12m0-8 4-3 4 3v8M2 20h20M7 11h2m6 2h2m-2 3h2"/>',
+  faroleiro: '<path d="M9 21h6m-5-3h4l1-9H9l1 9Zm2-15v3m-6 1 4 2m10-2-4 2m-7-5H6m12 0h-2"/>',
+  arcoiris: '<path d="M3 19a9 9 0 0 1 18 0M7 19a5 5 0 0 1 10 0M11 19a1 1 0 0 1 2 0"/><path d="M5 7h.01M12 4h.01M19 7h.01"/>',
+  conector: '<path d="M3 17c3-8 15-8 18 0M4 18h16M7 14v4m5-6v6m5-4v4M4 7l3 3m13-3-3 3"/>',
+  solar: '<path d="M3 20V9l5-4 5 4v11m0 0V7l4-3 4 3v13M2 20h20M6 12h1m3 0h1m5-1h1m-1 4h1"/>'
+};
+const CONQUISTA_CORES = { lar: "#f1c86b", arcos: "#9bc5d6", jardim: "#80b982", ponte: "#d49a62", paleta: "#b999d8", metropole: "#df9c70", botanico: "#5a9b72", florada: "#dc81a5", iluminada: "#e7b84b", arquiteto: "#678ec2", faroleiro: "#61aeb0", arcoiris: "#bd85c6", conector: "#bd8754", solar: "#de815d" };
+let conquistaFila = [], conquistaTimer = 0;
 const PREFERENCIAS_PADRAO = {
   sound: true,
   motion: !window.matchMedia("(prefers-reduced-motion: reduce)").matches,
@@ -127,7 +154,10 @@ function carregarPreferencias() {
     return {
       ...PREFERENCIAS_PADRAO,
       ...stored,
-      volume: Number.isFinite(+stored.volume) ? Math.max(0, Math.min(100, +stored.volume)) : PREFERENCIAS_PADRAO.volume
+      volume: Number.isFinite(+stored.volume) ? Math.max(0, Math.min(100, +stored.volume)) : PREFERENCIAS_PADRAO.volume,
+      animationSpeed: [0.5, 1, 2].includes(Number(stored.animationSpeed)) ? Number(stored.animationSpeed) : PREFERENCIAS_PADRAO.animationSpeed,
+      timeMode: ["cycle", "day", "night"].includes(stored.timeMode) ? stored.timeMode : PREFERENCIAS_PADRAO.timeMode,
+      weather: ["clear", "rain"].includes(stored.weather) ? stored.weather : PREFERENCIAS_PADRAO.weather
     };
   } catch (e) {
     return { ...PREFERENCIAS_PADRAO };
@@ -623,8 +653,9 @@ function desenharFundo(now) {
 }
 
 function desenhar(now) {
-  requestAnimationFrame(desenhar);
+  renderFrame = 0;
   if (!$("jogo").classList.contains("on")) return;
+  renderFrame = requestAnimationFrame(desenhar);
   const animationTime = preferencias.motion ? now : 0;
   desenharFundo(now);
   poly([P(0, 0, 0), P(N, 0, 0), P(N, N, 0), P(0, N, 0)], "rgba(255,255,255,.10)");
@@ -744,15 +775,61 @@ function stats() {
 }
 function checarConquistas() {
   let liberadas = [];
-  try { liberadas = JSON.parse(localStorage.getItem("ilheu-achievements") || "[]"); } catch (e) { }
+  try { const stored = JSON.parse(localStorage.getItem("ilheu-achievements") || "[]"); liberadas = Array.isArray(stored) ? stored : []; } catch (e) { }
   const s = stats();
-  CONQUISTAS.forEach(a => { if (!liberadas.includes(a.id) && a.libera(s)) { liberadas.push(a.id); aviso("Conquista: " + a.nome); } });
+  CONQUISTAS.forEach(a => { if (!liberadas.includes(a.id) && a.libera(s)) { liberadas.push(a.id); enfileirarConquista(a); } });
   try { localStorage.setItem("ilheu-achievements", JSON.stringify(liberadas)); } catch (e) { }
   atualizarListaConquistas();
 }
+function tocarSomConquista() {
+  if (!som || !preferencias.sound || preferencias.volume <= 0) return;
+  try {
+    ac = ac || new (window.AudioContext || window.webkitAudioContext)();
+    if (ac.state === "suspended") ac.resume();
+    const start = ac.currentTime, volume = preferencias.volume / 100;
+    [523.25, 659.25, 783.99].forEach((frequency, index) => {
+      const oscillator = ac.createOscillator(), gain = ac.createGain(), at = start + index * .12;
+      oscillator.type = "sine"; oscillator.frequency.setValueAtTime(frequency, at);
+      gain.gain.setValueAtTime(.0001, at); gain.gain.linearRampToValueAtTime(.11 * volume, at + .035); gain.gain.exponentialRampToValueAtTime(.0001, at + .42);
+      oscillator.connect(gain); gain.connect(ac.destination); oscillator.start(at); oscillator.stop(at + .44);
+    });
+  } catch (e) { bip(784, .32); }
+}
+function enfileirarConquista(conquista) {
+  conquistaFila.push(conquista);
+  if (!conquistaTimer) mostrarProximaConquista();
+}
+function mostrarProximaConquista() {
+  const conquista = conquistaFila.shift(), popup = $("achievementNotice");
+  if (!conquista || !popup) { conquistaTimer = 0; return; }
+  const badge = $("achievementBadge");
+  badge.style.setProperty("--achievement-color", CONQUISTA_CORES[conquista.id] || "#d8ad59");
+  badge.innerHTML = arteConquista(conquista.id);
+  $("achievementNoticeName").textContent = conquista.nome;
+  $("achievementNoticeDetail").textContent = conquista.detalhe;
+  popup.hidden = false;
+  tocarSomConquista();
+  conquistaTimer = setTimeout(() => {
+    popup.hidden = true;
+    conquistaTimer = 0;
+    mostrarProximaConquista();
+  }, 4600);
+}
+function fecharNotificacaoConquista() {
+  if (conquistaTimer) clearTimeout(conquistaTimer);
+  conquistaTimer = 0;
+  $("achievementNotice").hidden = true;
+  mostrarProximaConquista();
+}
 function atualizarListaConquistas() {
-  let ids = []; try { ids = JSON.parse(localStorage.getItem("ilheu-achievements") || "[]"); } catch (e) { }
-  const list = $("achievementList"); if (list) list.innerHTML = CONQUISTAS.map(a => '<li class="' + (ids.includes(a.id) ? "unlocked" : "locked") + '"><b>' + (ids.includes(a.id) ? "✦ " : "◇ ") + a.nome + '</b><small>' + a.detalhe + '</small></li>').join("");
+  let ids = []; try { const stored = JSON.parse(localStorage.getItem("ilheu-achievements") || "[]"); ids = Array.isArray(stored) ? stored : []; } catch (e) { }
+  const list = $("achievementList"); if (list) list.innerHTML = CONQUISTAS.map(a => '<li class="' + (ids.includes(a.id) ? "unlocked" : "locked") + '"><span class="achievement-list-art">' + arteConquista(a.id) + '</span><span class="achievement-list-copy"><b>' + a.nome + '</b><small>' + a.detalhe + '</small></span></li>').join("");
+}
+function arteConquista(id) {
+  const color = CONQUISTA_CORES[id] || "#d8ad59";
+  const art = CONQUISTA_ARTE[id] || CONQUISTA_ARTE.lar;
+  const nome = CONQUISTAS.find(a => a.id === id)?.nome || "conquista";
+  return '<svg viewBox="0 0 48 54" role="img" aria-label="Emblema: ' + nome + '" style="--achievement-color:' + color + '"><path class="badge-ribbon" d="m15 32-3 18 12-6 12 6-3-18"/><circle class="badge-medal" cx="24" cy="21" r="17"/><g class="badge-art" transform="translate(12 9)">' + art + '</g></svg>';
 }
 function snapshotIlha(nome) {
   const active = grade ? { grade: grade.map(({ h, c, t, r, bridge, d }) => ({ h, c, t, r, bridge: !!bridge, d: Number.isInteger(d) ? d : -1 })), pts: pts || 0, blocos: blocos || 0, qi: qi || 0, rotation: cameraDegrees, zoom: cameraZoom, panX: cameraPanX, panY: cameraPanY } : null;
@@ -780,7 +857,7 @@ function exportarIlha() {
     cv.toBlob(blob => { if (!blob) { aviso("Não foi possível exportar a imagem."); return; } link.href = URL.createObjectURL(blob); link.click(); setTimeout(() => URL.revokeObjectURL(link.href), 1000); }, "image/png");
   } finally {
     grade = previous.grade; pts = previous.pts; blocos = previous.blocos; qi = previous.qi; cameraDegrees = previous.cameraDegrees; cameraZoom = previous.cameraZoom; cameraPanX = previous.cameraPanX; cameraPanY = previous.cameraPanY; hov = previous.hov; keyboardNav = previous.keyboardNav; demo = previous.demo; bridgeMode = previous.bridgeMode; decorMode = previous.decorMode;
-    if ($("jogo").classList.contains("on")) requestAnimationFrame(desenhar);
+    if ($("jogo").classList.contains("on") && !renderFrame) renderFrame = requestAnimationFrame(desenhar);
   }
 }
 function aviso(t) {
@@ -842,6 +919,7 @@ function iniciar(retomar = false) {
 function tela(id) {
   document.querySelectorAll(".screen").forEach(s => s.classList.remove("on"));
   $(id).classList.add("on");
+  if (id === "jogo" && !renderFrame) renderFrame = requestAnimationFrame(desenhar);
 }
 function agir(i, dem) {
   if (over || i < 0) return;
@@ -1135,6 +1213,7 @@ $("btnSettingsIntro").addEventListener("click", () => abrirConfiguracoes("inicio
 $("btnSettingsGame").addEventListener("click", () => abrirConfiguracoes("jogo"));
 $("btnIlhasIntro").addEventListener("click", abrirIlhas); $("btnIlhasGame").addEventListener("click", abrirIlhas);
 $("btnConquistasIntro").addEventListener("click", () => { atualizarListaConquistas(); $("achievementsDialog").showModal(); });
+$("achievementNoticeClose").addEventListener("click", fecharNotificacaoConquista);
 $("townSave").addEventListener("click", registrarIlha);
 $("townLoad").addEventListener("click", () => aplicarIlha(ilhaSelecionada()));
 $("townSelect").addEventListener("change", () => { const item = ilhaSelecionada(); if (item) $("townName").value = item.name; });
@@ -1218,4 +1297,3 @@ grade = Array.from({ length: N * N }, () => ({ h: 0, c: 0, t: 0, r: 0, bridge: f
 aplicarPreferencias();
 atualizarBotaoContinuar();
 atualizarDirecaoCamera();
-requestAnimationFrame(desenhar);
