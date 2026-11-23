@@ -37,7 +37,7 @@
 
 Uma campanha de **60 desafios divididos em 12 fases** guia a reconstrução: cada pedido cumprido rende **+6 blocos** e **+50 pontos**, e cada bloco precisa ser bem planejado. Moradores passeiam pela ilha, enquanto o indicador de bem-estar responde às casas, árvores, flores, postes e pontes. Se preferir apenas criar, o **Modo livre** oferece blocos infinitos.
 
-O tutorial integrado apresenta construcao, desafios, decoracao, controles de toque e atalhos. A previa de acao informa custo e bloqueios; arquivos JSON permitem levar salvamentos para outro navegador.
+O tutorial integrado apresenta construção, desafios, decoração, controles de toque e atalhos. A prévia de ação informa custo e bloqueios; arquivos JSON permitem levar salvamentos para outro navegador.
 
 O projeto foi desenvolvido pelo **Maré Mansa Studio** e roda direto no navegador, sem instalação, sem frameworks e sem bibliotecas externas. Todo o visual isométrico é desenhado em tempo real em um `<canvas>`, e os efeitos sonoros e a trilha ambiente são sintetizados no código.
 
@@ -72,7 +72,7 @@ python -m http.server 8000
 ```
 
 > [!NOTE]
-> Preferências e progresso ficam salvos no próprio navegador (`localStorage`).
+> Preferências e progresso ficam salvos no próprio navegador (`localStorage`). Limpar os dados do site apaga o progresso, então use o **backup em JSON** para guardar suas ilhas.
 
 ---
 
@@ -128,7 +128,7 @@ python -m http.server 8000
 
 | | Recurso | Detalhes |
 | :-: | ------- | -------- |
-| <img src="https://api.iconify.design/lucide/target.svg?color=%234b9da2" width="22" alt=""> | **Campanha** | 60 desafios em 12 fases, com metas de casas, bairros, torres, pontes, decoracao, modelos, cores e bem-estar |
+| <img src="https://api.iconify.design/lucide/target.svg?color=%234b9da2" width="22" alt=""> | **Campanha** | 60 desafios em 12 fases, com metas de casas, bairros, torres, pontes, decoração, modelos, cores e bem-estar |
 | <img src="https://api.iconify.design/lucide/star.svg?color=%234b9da2" width="22" alt=""> | **Avaliação** | Até 3 estrelas no final, com a melhor pontuação guardada |
 | <img src="https://api.iconify.design/lucide/trophy.svg?color=%234b9da2" width="22" alt=""> | **Conquistas** | 14 conquistas desbloqueáveis, cada uma com emblema SVG exclusivo e aviso sonoro na partida |
 | <img src="https://api.iconify.design/lucide/infinity.svg?color=%234b9da2" width="22" alt=""> | **Modo livre** | Blocos infinitos para criar sem se preocupar com recursos |
@@ -148,7 +148,7 @@ python -m http.server 8000
 | :-: | ------- | -------- |
 | <img src="https://api.iconify.design/lucide/hard-drive.svg?color=%234b9da2" width="22" alt=""> | **Automático** | Progresso e histórico de até 12 ações salvos no navegador, com botão **Continuar partida** |
 | <img src="https://api.iconify.design/lucide/image-down.svg?color=%234b9da2" width="22" alt=""> | **Minhas ilhas** | Salve até **8 vilarejos**, renomeie, reabra, exclua e exporte ilhas como PNG |
-| | **Backup portatil** | Exporte e importe salvamentos JSON validados pelo jogo |
+| <img src="https://api.iconify.design/lucide/file-json.svg?color=%234b9da2" width="22" alt=""> | **Backup portátil** | Exporte e importe salvamentos JSON validados pelo jogo |
 
 ### <img src="https://api.iconify.design/lucide/accessibility.svg?color=%234b9da2" width="22" align="absmiddle" alt=""> Acessibilidade
 
@@ -258,14 +258,14 @@ Os desafios variam entre construir casas, **unir casas num mesmo bairro** (conec
 | <img src="https://api.iconify.design/lucide/route.svg?color=%234b9da2" width="20" alt=""> | **Margens unidas** | Construa quatro pontes conectadas |
 | <img src="https://api.iconify.design/lucide/palette.svg?color=%234b9da2" width="20" alt=""> | **Bairro colorido** | Use seis cores diferentes |
 | <img src="https://api.iconify.design/lucide/building-2.svg?color=%234b9da2" width="20" alt=""> | **Cidade florescida** | Construa 45 casas |
-| 🌳 | **Guardião do bosque** | Plante oito árvores |
-| 🌸 | **Jardim em festa** | Decore oito espaços com flores |
-| 💡 | **Luzes da vila** | Instale cinco postes de luz |
-| 🏛️ | **Mestre das formas** | Construa usando dez modelos diferentes |
-| 🔦 | **Guardião da costa** | Construa um farol |
-| 🌈 | **Paleta completa** | Use dez cores diferentes |
-| 🌉 | **Grande travessia** | Construa oito pontes |
-| 🏙️ | **Grande cidade** | Construa 80 casas |
+| <img src="https://api.iconify.design/lucide/tree-pine.svg?color=%234b9da2" width="20" alt=""> | **Guardião do bosque** | Plante oito árvores |
+| <img src="https://api.iconify.design/lucide/flower-2.svg?color=%234b9da2" width="20" alt=""> | **Jardim em festa** | Decore oito espaços com flores |
+| <img src="https://api.iconify.design/lucide/lightbulb.svg?color=%234b9da2" width="20" alt=""> | **Luzes da vila** | Instale cinco postes de luz |
+| <img src="https://api.iconify.design/lucide/shapes.svg?color=%234b9da2" width="20" alt=""> | **Mestre das formas** | Construa usando dez modelos diferentes |
+| <img src="https://api.iconify.design/lucide/anchor.svg?color=%234b9da2" width="20" alt=""> | **Guardião da costa** | Construa um farol |
+| <img src="https://api.iconify.design/lucide/rainbow.svg?color=%234b9da2" width="20" alt=""> | **Paleta completa** | Use dez cores diferentes |
+| <img src="https://api.iconify.design/lucide/waypoints.svg?color=%234b9da2" width="20" alt=""> | **Grande travessia** | Construa oito pontes |
+| <img src="https://api.iconify.design/lucide/landmark.svg?color=%234b9da2" width="20" alt=""> | **Grande cidade** | Construa 80 casas |
 
 ---
 
@@ -281,7 +281,7 @@ Os desafios variam entre construir casas, **unir casas num mesmo bairro** (conec
 | **CSS3** | Layout com Flexbox e Grid, variáveis CSS, animações, temas de acessibilidade e design responsivo |
 | **JavaScript (ES6+)** | Toda a lógica do jogo, sem frameworks nem bibliotecas |
 | **Canvas 2D API** | Renderização isométrica em tempo real, com ordenação de profundidade e rotação de câmera |
-| **Web Audio API** | Efeitos sonoros sintetizados com osciladores, sem arquivos de áudio |
+| **Web Audio API** | Efeitos sonoros e trilha ambiente sintetizados com osciladores, sem arquivos de áudio |
 | **Pointer Events** | Controle unificado de mouse e toque |
 | **localStorage** | Salvamento automático, preferências, melhor pontuação, conquistas e ilhas salvas |
 
@@ -309,6 +309,26 @@ Mini-Game/
 - [x] Tutorial, dicas de ação e salvamentos portáteis
 - [ ] Testar em dispositivos móveis reais
 - [ ] Publicar o jogo online com GitHub Pages
+
+---
+
+## Contribuindo
+
+Sugestões e correções são bem-vindas.
+
+1. Faça um *fork* do repositório.
+2. Crie uma branch para a sua ideia: `git checkout -b minha-melhoria`.
+3. Faça o commit das alterações: `git commit -m "Descreve a melhoria"`.
+4. Envie a branch: `git push origin minha-melhoria`.
+5. Abra um *Pull Request*.
+
+Encontrou um bug? [Abra uma issue](https://github.com/theosouzaa/Mini-Game/issues) contando o que aconteceu, o navegador e o dispositivo que você usou.
+
+---
+
+## Licença
+
+Este projeto está sob a licença **MIT**. Consulte o arquivo [`LICENSE`](LICENSE) para mais detalhes.
 
 ---
 
