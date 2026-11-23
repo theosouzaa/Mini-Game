@@ -1,4 +1,4 @@
-﻿const N = 19, MAXH = 7, TW = 72, TH = 36, FH = 28, BLOCOS = 20, BONUS = 6;
+const N = 19, MAXH = 7, TW = 72, TH = 36, FH = 28, BLOCOS = 20, BONUS = 6, MAX_HISTORY = 12;
 const W = N * TW + 40, H = N * TH + MAXH * FH + 70, OX = W / 2, OY = MAXH * FH + 28;
 const CORES = ["#f2b5a7", "#f6d58b", "#b9ddc4", "#a8cbe8", "#e6c2dd", "#f1c59a", "#d4e3a0", "#f2a9b6", "#8fd0c2", "#c5b7ea", "#f4dfcf", "#8db5c8"];
 const CORES_NOMES = ["Pêssego", "Girassol", "Menta", "Brisa", "Lavanda", "Areia", "Folha", "Coral", "Turquesa", "Lilás", "Concha", "Oceano"];
@@ -9,59 +9,59 @@ const QUESTS = [
   { t: "Construa 5 casas", k: "cs", n: 5 },
   { t: "Una 6 casas lado a lado", k: "big", n: 6 },
   { t: "Erga uma torre de 4 andares", k: "mx", n: 4 },
-  { t: "Some 18 andares na ilha", k: "fl", n: 18 },
+  { t: "Plante 3 árvores", k: "arvores", n: 3 },
   { t: "Una 10 casas num só bairro", k: "big", n: 10 },
   { t: "Erga uma torre de 7 andares", k: "mx", n: 7 },
   { t: "Povoe a ilha com 20 casas", k: "cs", n: 20 },
-  { t: "Una 15 casas num bairro", k: "big", n: 15 },
+  { t: "Decore 4 espaços com flores", k: "flores", n: 4 },
   { t: "Some 40 andares na ilha", k: "fl", n: 40 },
   { t: "Construa 25 casas", k: "cs", n: 25 },
   { t: "Erga 3 torres de 4 andares", k: "towers", n: 3 },
   { t: "Una 20 casas num bairro", k: "big", n: 20 },
-  { t: "Some 65 andares na ilha", k: "fl", n: 65 },
+  { t: "Construa com 4 modelos diferentes", k: "modelCount", n: 4 },
   { t: "Construa 30 casas", k: "cs", n: 30 },
   { t: "Erga 6 torres de 4 andares", k: "towers", n: 6 },
   { t: "Una 25 casas num bairro", k: "big", n: 25 },
-  { t: "Some 90 andares na ilha", k: "fl", n: 90 },
+  { t: "Instale 3 postes de luz", k: "postes", n: 3 },
   { t: "Construa 35 casas", k: "cs", n: 35 },
   { t: "Erga 9 torres de 4 andares", k: "towers", n: 9 },
   { t: "Una 30 casas num bairro", k: "big", n: 30 },
-  { t: "Some 120 andares na ilha", k: "fl", n: 120 },
+  { t: "Use 5 cores diferentes nas casas", k: "cores", n: 5 },
   { t: "Conecte um bairro com 35 casas", k: "big", n: 35 },
   { t: "Povoe a ilha com 40 casas", k: "cs", n: 40 },
-  { t: "Some 145 andares na ilha", k: "fl", n: 145 },
+  { t: "Alcance 70% de bem-estar", k: "felicidade", n: 70 },
   { t: "Erga 10 torres de 4 andares", k: "towers", n: 10 },
   { t: "Ligue bairros com 4 pontes", k: "bridges", n: 4 },
   { t: "Povoe a ilha com 45 casas", k: "cs", n: 45 },
   { t: "Conecte um bairro com 40 casas", k: "big", n: 40 },
-  { t: "Some 180 andares na ilha", k: "fl", n: 180 },
+  { t: "Decore 8 espaços com flores", k: "flores", n: 8 },
   { t: "Expanda a rede para 8 pontes", k: "bridges", n: 8 },
   { t: "Construa 50 casas", k: "cs", n: 50 },
-  { t: "Some 200 andares na ilha", k: "fl", n: 200 },
+  { t: "Construa com 8 modelos diferentes", k: "modelCount", n: 8 },
   { t: "Una 45 casas num bairro", k: "big", n: 45 },
   { t: "Erga 12 torres de 4 andares", k: "towers", n: 12 },
   { t: "Construa 55 casas", k: "cs", n: 55 },
   { t: "Ligue bairros com 10 pontes", k: "bridges", n: 10 },
-  { t: "Some 230 andares na ilha", k: "fl", n: 230 },
+  { t: "Plante 8 árvores", k: "arvores", n: 8 },
   { t: "Una 50 casas num bairro", k: "big", n: 50 },
   { t: "Erga 15 torres de 4 andares", k: "towers", n: 15 },
   { t: "Construa 60 casas", k: "cs", n: 60 },
-  { t: "Some 260 andares na ilha", k: "fl", n: 260 },
+  { t: "Instale 5 postes de luz", k: "postes", n: 5 },
   { t: "Ligue bairros com 12 pontes", k: "bridges", n: 12 },
   { t: "Una 55 casas num bairro", k: "big", n: 55 },
   { t: "Erga 18 torres de 4 andares", k: "towers", n: 18 },
   { t: "Construa 65 casas", k: "cs", n: 65 },
-  { t: "Some 290 andares na ilha", k: "fl", n: 290 },
+  { t: "Use 8 cores diferentes nas casas", k: "cores", n: 8 },
   { t: "Una 60 casas num bairro", k: "big", n: 60 },
   { t: "Ligue bairros com 14 pontes", k: "bridges", n: 14 },
   { t: "Erga 20 torres de 4 andares", k: "towers", n: 20 },
   { t: "Construa 70 casas", k: "cs", n: 70 },
-  { t: "Some 320 andares na ilha", k: "fl", n: 320 },
+  { t: "Alcance 90% de bem-estar", k: "felicidade", n: 90 },
   { t: "Una 65 casas num bairro", k: "big", n: 65 },
   { t: "Ligue bairros com 16 pontes", k: "bridges", n: 16 },
   { t: "Erga 22 torres de 4 andares", k: "towers", n: 22 },
   { t: "Construa 75 casas", k: "cs", n: 75 },
-  { t: "Some 350 andares na ilha", k: "fl", n: 350 },
+  { t: "Construa com 12 modelos diferentes", k: "modelCount", n: 12 },
   { t: "Una 70 casas num bairro", k: "big", n: 70 },
   { t: "Ligue bairros com 18 pontes", k: "bridges", n: 18 },
   { t: "Erga 25 torres de 4 andares", k: "towers", n: 25 },
@@ -196,38 +196,39 @@ function atualizarPreferencia(chave, valor) {
   else if (chave === "autosave" && valor && !over) salvarProgresso();
   aplicarPreferencias();
   if (["ambientMusic", "sound", "volume"].includes(chave)) atualizarTrilha();
+  if (chave === "creative" && grade && $("jogo").classList.contains("on")) { hud(); atualizarPreview(); }
 }
 function restaurarPreferencias() {
   preferencias = { ...PREFERENCIAS_PADRAO };
   salvarPreferencias();
   aplicarPreferencias();
 }
+function validarHistorico(raw) {
+  if (!Array.isArray(raw)) return [];
+  return raw.slice(-MAX_HISTORY).filter(item => item && Array.isArray(item.g) && item.g.length === N * N && Number.isInteger(item.pts) && item.pts >= 0 && Number.isInteger(item.blocos) && item.blocos >= 0 && Number.isInteger(item.qi) && item.qi >= 0 && item.qi < QUESTS.length && item.g.every(cell => Array.isArray(cell) && Number.isInteger(cell[0]) && cell[0] >= 0 && cell[0] <= MAXH && Number.isInteger(cell[1]) && cell[1] >= 0 && cell[1] < CORES.length && Number.isInteger(cell[2]) && cell[2] >= 0 && cell[2] < TELHAS.length && Number.isInteger(cell[3]) && cell[3] >= 0 && cell[3] < MODELOS.length && (cell[5] === undefined || Number.isInteger(cell[5]) && cell[5] >= -1 && cell[5] < DECORACOES.length))).map(item => ({ g: item.g.map(cell => [cell[0], cell[1], cell[2], cell[3], !!cell[4], Number.isInteger(cell[5]) ? cell[5] : -1]), pts: item.pts, blocos: item.blocos, qi: item.qi }));
+}
 function lerProgresso() {
   try {
     const save = JSON.parse(localStorage.getItem("ilheu-save") || "null");
+    return save ? normalizarProgresso(save) : null;
+  } catch (e) { return null; }
+}
+function normalizarProgresso(save) {
+  try {
     if (!save || !Array.isArray(save.grade) || ![9 * 9, 15 * 15, N * N].includes(save.grade.length)) return null;
     if (!Number.isInteger(save.qi) || save.qi < 0 || save.qi >= QUESTS.length) return null;
     if (!Number.isInteger(save.pts) || save.pts < 0 || !Number.isInteger(save.blocos) || save.blocos < 0) return null;
     const oldSize = Math.sqrt(save.grade.length), padding = Math.floor((N - oldSize) / 2);
-    const sourceCells = save.grade.length === N * N
-      ? save.grade
-      : Array.from({ length: N * N }, (_, index) => {
-        const x = index % N - padding, y = Math.floor(index / N) - padding;
-        return x >= 0 && y >= 0 && x < oldSize && y < oldSize ? save.grade[y * oldSize + x] : null;
-      });
+    const sourceCells = save.grade.length === N * N ? save.grade : Array.from({ length: N * N }, (_, index) => { const x = index % N - padding, y = Math.floor(index / N) - padding; return x >= 0 && y >= 0 && x < oldSize && y < oldSize ? save.grade[y * oldSize + x] : null; });
     const cells = sourceCells.map(cell => {
       if (cell === null) return { h: 0, c: 0, t: 0, r: 0, born: 0, bridge: false, d: -1 };
-      if (!cell || !Number.isInteger(cell.h) || cell.h < 0 || cell.h > MAXH) return null;
-      if (!Number.isInteger(cell.c) || cell.c < 0 || cell.c >= CORES.length) return null;
-      if (!Number.isInteger(cell.t) || cell.t < 0 || cell.t >= TELHAS.length) return null;
-      if (!Number.isInteger(cell.r) || cell.r < 0 || cell.r >= MODELOS.length) return null;
+      if (!cell || !Number.isInteger(cell.h) || cell.h < 0 || cell.h > MAXH || !Number.isInteger(cell.c) || cell.c < 0 || cell.c >= CORES.length || !Number.isInteger(cell.t) || cell.t < 0 || cell.t >= TELHAS.length || !Number.isInteger(cell.r) || cell.r < 0 || cell.r >= MODELOS.length) return null;
       return { h: cell.h, c: cell.c, t: cell.t, r: cell.r, bridge: !!cell.bridge, d: Number.isInteger(cell.d) && cell.d >= 0 && cell.d < DECORACOES.length ? cell.d : -1, born: 0 };
     });
+    if (cells.includes(null)) return null;
     const oldRotation = Number(save.rotation) || 0;
-    return cells.includes(null) ? null : { grade: cells, qi: save.qi, pts: save.pts, blocos: save.blocos, rotation: ((oldRotation <= 3 ? oldRotation * 90 : oldRotation) % 360 + 360) % 360, zoom: Math.max(.65, Math.min(1.5, Number(save.zoom) || 1)), panX: Math.max(-W / 3, Math.min(W / 3, Number(save.panX) || 0)), panY: Math.max(-H / 3, Math.min(H / 3, Number(save.panY) || 0)) };
-  } catch (e) {
-    return null;
-  }
+    return { grade: cells, qi: save.qi, pts: save.pts, blocos: save.blocos, hist: validarHistorico(save.hist), redoHist: validarHistorico(save.redoHist), rotation: ((oldRotation <= 3 ? oldRotation * 90 : oldRotation) % 360 + 360) % 360, zoom: Math.max(.65, Math.min(1.5, Number(save.zoom) || 1)), panX: Math.max(-W / 3, Math.min(W / 3, Number(save.panX) || 0)), panY: Math.max(-H / 3, Math.min(H / 3, Number(save.panY) || 0)) };
+  } catch (e) { return null; }
 }
 function atualizarBotaoContinuar() {
   const button = $("btnContinuar");
@@ -244,9 +245,9 @@ function salvarProgresso() {
   }
   try {
     localStorage.setItem("ilheu-save", JSON.stringify({
-      grade: grade.map(({ h, c, t, r, bridge, d }) => ({ h, c, t, r, bridge: !!bridge, d: Number.isInteger(d) ? d : -1 })), pts, blocos, qi, rotation: cameraDegrees, zoom: cameraZoom, panX: cameraPanX, panY: cameraPanY
+      grade: grade.map(({ h, c, t, r, bridge, d }) => ({ h, c, t, r, bridge: !!bridge, d: Number.isInteger(d) ? d : -1 })), pts, blocos, qi, hist: hist.slice(-MAX_HISTORY), redoHist: redoHist.slice(-MAX_HISTORY), rotation: cameraDegrees, zoom: cameraZoom, panX: cameraPanX, panY: cameraPanY
     }));
-  } catch (e) { }
+  } catch (e) { aviso("Não foi possível salvar. Libere espaço no navegador."); }
   atualizarBotaoContinuar();
 }
 function abrirConfiguracoes(origem) {
@@ -676,7 +677,7 @@ function desenhar(now) {
     if (hov >= 0 && !keyboardNav) {
       if (bridgeMode && (preferencias.creative || blocos > 0) && ponteConectaCasas(i)) poly([P(x, y, .2), P(x + 1, y, .2), P(x + 1, y + 1, .2), P(x, y + 1, .2)], "rgba(226,177,105,.72)", "#fff0c0");
       else if (demo && h) poly([P(x, y, h), P(x + 1, y, h), P(x + 1, y + 1, h), P(x, y + 1, h)], "rgba(235,70,70,.55)");
-      else if (!demo && !bridgeMode && h < MAXH && blocos > 0) { ctx.globalAlpha = .5; box(x, y, 1, h, h + 1, "#ffffff"); ctx.globalAlpha = 1; }
+      else if (!demo && !bridgeMode && h < MAXH && (blocos > 0 || preferencias.creative)) { ctx.globalAlpha = .5; box(x, y, 1, h, h + 1, "#ffffff"); ctx.globalAlpha = 1; }
     }
     if (keyboardNav) {
       ctx.beginPath();
@@ -771,7 +772,7 @@ function stats() {
   });
   const postes = grade.filter(c => c.d === 1).length, flores = grade.filter(c => c.d === 4).length;
   const felicidade = cs ? Math.min(100, 35 + Math.min(cs, 12) * 2 + Math.min(arvores, 6) * 5 + Math.min(flores, 8) * 2 + Math.min(postes, 5) * 2 + Math.min(bridges, 5) * 2) : 0;
-  return { cs, fl, mx, big, towers, bridges, arvores, postes, flores, felicidade, cores: cores.size, modelos };
+  return { cs, fl, mx, big, towers, bridges, arvores, postes, flores, felicidade, cores: cores.size, modelCount: modelos.size, modelos };
 }
 function checarConquistas() {
   let liberadas = [];
@@ -832,7 +833,7 @@ function arteConquista(id) {
   return '<svg viewBox="0 0 48 54" role="img" aria-label="Emblema: ' + nome + '" style="--achievement-color:' + color + '"><path class="badge-ribbon" d="m15 32-3 18 12-6 12 6-3-18"/><circle class="badge-medal" cx="24" cy="21" r="17"/><g class="badge-art" transform="translate(12 9)">' + art + '</g></svg>';
 }
 function snapshotIlha(nome) {
-  const active = grade ? { grade: grade.map(({ h, c, t, r, bridge, d }) => ({ h, c, t, r, bridge: !!bridge, d: Number.isInteger(d) ? d : -1 })), pts: pts || 0, blocos: blocos || 0, qi: qi || 0, rotation: cameraDegrees, zoom: cameraZoom, panX: cameraPanX, panY: cameraPanY } : null;
+  const active = grade ? { grade: grade.map(({ h, c, t, r, bridge, d }) => ({ h, c, t, r, bridge: !!bridge, d: Number.isInteger(d) ? d : -1 })), pts: pts || 0, blocos: blocos || 0, qi: qi || 0, rotation: cameraDegrees, zoom: cameraZoom, panX: cameraPanX, panY: cameraPanY, hist: hist.slice(-MAX_HISTORY), redoHist: redoHist.slice(-MAX_HISTORY) } : null;
   const save = active || lerProgresso(); if (!save) return null; return { id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()), name: nome, save, savedAt: new Date().toISOString() };
 }
 function listarIlhas() { try { return JSON.parse(localStorage.getItem("ilheu-towns") || "[]").filter(x => x && x.id && x.save); } catch (e) { return []; } }
@@ -840,7 +841,7 @@ function preencherIlhas() { const s = $("townSelect"), items = listarIlhas(); s.
 function abrirIlhas() { preencherIlhas(); $("townsDialog").showModal(); }
 function registrarIlha() { const name = $("townName").value.trim(); if (!name) { aviso("Dê um nome para sua ilha."); return; } const items = listarIlhas(); if (items.length >= 8) { aviso("Você já tem oito ilhas salvas. Exclua uma para criar espaço."); return; } const item = snapshotIlha(name); if (!item) { aviso("Construa ou retome uma ilha antes de salvá-la."); return; } items.push(item); localStorage.setItem("ilheu-towns", JSON.stringify(items)); preencherIlhas(); $("townSelect").value = item.id; aviso("Ilha salva: " + name); }
 function ilhaSelecionada() { return listarIlhas().find(i => i.id === $("townSelect").value); }
-function aplicarIlha(item) { if (!item) return; const prior = localStorage.getItem("ilheu-save"); let loaded = false; try { localStorage.setItem("ilheu-save", JSON.stringify(item.save)); const s = lerProgresso(); if (!s) { aviso("Este arquivo de ilha está inválido."); return; } grade = s.grade; pts = s.pts; blocos = s.blocos; qi = s.qi; cameraDegrees = s.rotation; cameraZoom = s.zoom; cameraPanX = s.panX; cameraPanY = s.panY; hist = []; over = false; hud(); atualizarDirecaoCamera(); tela("jogo"); cv.focus(); salvarProgresso(); $("townsDialog").close(); loaded = true; } finally { if (!loaded) { if (prior === null) localStorage.removeItem("ilheu-save"); else localStorage.setItem("ilheu-save", prior); } } }
+function aplicarIlha(item) { if (!item) return; const prior = localStorage.getItem("ilheu-save"); let loaded = false; try { localStorage.setItem("ilheu-save", JSON.stringify(item.save)); const s = lerProgresso(); if (!s) { aviso("Este arquivo de ilha está inválido."); return; } grade = s.grade; pts = s.pts; blocos = s.blocos; qi = s.qi; hist = s.hist || []; redoHist = s.redoHist || []; cameraDegrees = s.rotation; cameraZoom = s.zoom; cameraPanX = s.panX; cameraPanY = s.panY; over = false; hud(); atualizarDirecaoCamera(); tela("jogo"); cv.focus(); salvarProgresso(); $("townsDialog").close(); loaded = true; } finally { if (!loaded) { if (prior === null) localStorage.removeItem("ilheu-save"); else localStorage.setItem("ilheu-save", prior); } } }
 function exportarIlha() {
   const item = ilhaSelecionada(); if (!item) return;
   const previousSave = localStorage.getItem("ilheu-save"); let save;
@@ -860,6 +861,36 @@ function exportarIlha() {
     if ($("jogo").classList.contains("on") && !renderFrame) renderFrame = requestAnimationFrame(desenhar);
   }
 }
+function baixarJSON(data, filename) {
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+  const link = document.createElement("a"); link.href = URL.createObjectURL(blob); link.download = filename; link.click();
+  setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+}
+function exportarSalvamento() {
+  const save = !over && grade ? { grade: grade.map(({ h, c, t, r, bridge, d }) => ({ h, c, t, r, bridge: !!bridge, d: Number.isInteger(d) ? d : -1 })), pts, blocos, qi, hist, redoHist, rotation: cameraDegrees, zoom: cameraZoom, panX: cameraPanX, panY: cameraPanY } : lerProgresso();
+  if (!save) { aviso("Não há uma partida salva para exportar."); return; }
+  baixarJSON({ game: "IlheuColorido", version: 1, exportedAt: new Date().toISOString(), save }, "ilha-salvamento.json");
+}
+function importarSalvamento(file) {
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    try {
+      const payload = JSON.parse(String(reader.result)), save = normalizarProgresso(payload.save || payload);
+      if (!save) throw new Error("invalid");
+      if (!window.confirm("Importar este salvamento vai substituir a partida automática atual. Deseja continuar?")) return;
+      localStorage.setItem("ilheu-save", JSON.stringify(save));
+      if (!lerProgresso()) throw new Error("storage");
+      atualizarBotaoContinuar();
+      $("townsDialog").close();
+      iniciar(true);
+      aviso("Salvamento importado. Sua ilha foi carregada.");
+    } catch (e) { aviso("Arquivo inválido ou incompatível. Escolha um JSON exportado pelo jogo."); }
+    $("townImportFile").value = "";
+  };
+  reader.onerror = () => aviso("Não foi possível ler esse arquivo.");
+  reader.readAsText(file);
+}
 function aviso(t) {
   const e = $("toast"); e.textContent = t; e.classList.remove("show"); void e.offsetWidth; e.classList.add("show");
 }
@@ -871,7 +902,7 @@ function syncSoundButton() {
 }
 function salvar() {
   hist.push({ g: grade.map(c => [c.h, c.c, c.t, c.r, !!c.bridge, c.d]), pts, blocos, qi });
-  if (hist.length > 30) hist.shift();
+  if (hist.length > MAX_HISTORY) hist.shift();
   redoHist = [];
 }
 function desfazer() {
@@ -880,7 +911,7 @@ function desfazer() {
   const u = hist.pop();
   u.g.forEach((a, i) => { grade[i].h = a[0]; grade[i].c = a[1]; grade[i].t = a[2]; grade[i].r = a[3]; grade[i].bridge = !!a[4]; grade[i].d = a[5] ?? -1; grade[i].born = 0; });
   pts = u.pts; blocos = u.blocos; qi = u.qi;
-  bip(260, .15); hud(); atualizarBotoesHistorico(); salvarProgresso();
+  bip(260, .15); hud(); atualizarBotoesHistorico(); salvarProgresso(); atualizarPreview();
 }
 function refazer() {
   if (over || !redoHist.length) return;
@@ -888,7 +919,7 @@ function refazer() {
   const u = redoHist.pop();
   u.g.forEach((a, i) => { grade[i].h = a[0]; grade[i].c = a[1]; grade[i].t = a[2]; grade[i].r = a[3]; grade[i].bridge = !!a[4]; grade[i].d = a[5] ?? -1; grade[i].born = 0; });
   pts = u.pts; blocos = u.blocos; qi = u.qi;
-  bip(380, .15); hud(); atualizarBotoesHistorico(); salvarProgresso();
+  bip(380, .15); hud(); atualizarBotoesHistorico(); salvarProgresso(); atualizarPreview();
 }
 function atualizarBotoesHistorico() {
   $("bUndo").disabled = !hist.length || over;
@@ -906,7 +937,7 @@ function iniciar(retomar = false) {
   if ($("mapSize")) $("mapSize").textContent = N + " × " + N;
   cv.setAttribute("aria-label", "Tabuleiro expansivo de " + N + " por " + N + " células. Use as setas para navegar e Enter para construir. Pressione Shift e use a roda do mouse para girar a câmera.");
   cv.setAttribute("aria-keyshortcuts", "ArrowUp ArrowDown ArrowLeft ArrowRight Enter Space D Z M Q E");
-  if (save) { grade = save.grade; pts = save.pts; blocos = save.blocos; qi = save.qi; }
+  if (save) { grade = save.grade; pts = save.pts; blocos = save.blocos; qi = save.qi; hist = save.hist || []; redoHist = save.redoHist || []; }
   $("bBuild").classList.add("on"); $("bBridge").classList.remove("on"); $("bDemo").classList.remove("on");
   $("bBuild").setAttribute("aria-pressed", "true"); $("bBridge").setAttribute("aria-pressed", "false"); $("bDemo").setAttribute("aria-pressed", "false");
   atualizarDirecaoCamera();
@@ -915,6 +946,7 @@ function iniciar(retomar = false) {
   syncSoundButton();
   hud(); tela("jogo"); cv.focus(); atualizarBotaoContinuar(); atualizarTrilha();
   anunciarSelecao();
+  atualizarPreview();
 }
 function tela(id) {
   document.querySelectorAll(".screen").forEach(s => s.classList.remove("on"));
@@ -925,7 +957,7 @@ function agir(i, dem) {
   if (over || i < 0) return;
   const c = grade[i], x = i % N, y = Math.floor(i / N);
   if (dem) {
-    if (!c.h && !c.bridge && c.d < 0) return;
+    if (!c.h && !c.bridge && c.d < 0) { aviso("Não há nada para remover neste espaço."); return; }
     salvar();
     if (c.d >= 0 && !c.h && !c.bridge) c.d = -1;
     else if (c.bridge) { c.bridge = false; if (!preferencias.creative) blocos++; }
@@ -934,15 +966,19 @@ function agir(i, dem) {
     if (preferencias.motion) floats.push({ x, y, z: c.h + .5, s: c.bridge ? "-Ponte" : "-5", t: performance.now() });
   } else if (decorMode) {
     if (selectedDecor === 2 && (c.h || c.bridge)) { aviso("Barcos precisam de uma célula livre na água."); return; }
+    if (selectedDecor !== 2 && c.bridge) { aviso("Remova a ponte antes de decorar este espaço."); return; }
     salvar(); c.d = selectedDecor; bip(520, .12);
   } else if (bridgeMode) {
-    if (c.h || c.bridge || (!preferencias.creative && blocos <= 0)) return;
+    if (c.h || c.bridge) { aviso("Esse espaço já está ocupado. Escolha um vão livre."); return; }
+    if (!preferencias.creative && blocos <= 0) { aviso("Você está sem blocos. Cumpra o desafio atual ou desfaça uma ação."); return; }
     if (!ponteConectaCasas(i)) { aviso("Coloque a ponte num vão entre duas casas ou caminhos conectados."); return; }
     salvar(); c.bridge = true;
     if (!preferencias.creative) blocos--;
     pts += 4; bip(460, .16);
   } else {
-    if (c.bridge || (!preferencias.creative && blocos <= 0) || c.h >= MAXH) return;
+    if (c.bridge) { aviso("Não dá para construir sobre uma ponte."); return; }
+    if (!preferencias.creative && blocos <= 0) { aviso("Você está sem blocos. Cumpra o desafio atual ou desfaça uma ação."); return; }
+    if (c.h >= MAXH) { aviso("Esta casa já atingiu o limite de " + MAXH + " andares."); return; }
     salvar(); let ganho;
     if (c.h === 0) {
       const vs = viz(i).filter(v => grade[v].h > 0), us = vs.map(v => grade[v].c);
@@ -959,8 +995,10 @@ function agir(i, dem) {
   verificar();
   checarConquistas();
   salvarProgresso();
+  atualizarPreview();
 }
 function verificar() {
+  if (preferencias.creative) { hud(); return; }
   const s = stats();
   while (qi < QUESTS.length && s[QUESTS[qi].k] >= QUESTS[qi].n) {
     qi++; blocos += BONUS; pts += 50;
@@ -987,6 +1025,15 @@ function hud() {
   const s = stats();
   $("pts").textContent = pts; $("blocos").textContent = preferencias.creative ? "∞" : blocos; $("casas").textContent = s.cs;
   $("happiness").textContent = s.felicidade + "%";
+  if (preferencias.creative) {
+    $("qn").textContent = "Modo livre";
+    $("qtxt").textContent = "Construa e decore sem objetivos de campanha";
+    $("qnum").textContent = "∞";
+    $("qfill").style.width = "0%";
+    $("qbar").setAttribute("aria-valuenow", 0);
+    atualizarBotoesHistorico();
+    return;
+  }
   const q = QUESTS[Math.min(qi, QUESTS.length - 1)], v = Math.min(q.n, s[q.k]);
   const fase = Math.min(Math.floor(qi / 5), FASES.length - 1);
   $("qn").textContent = "Fase " + (fase + 1) + "/" + FASES.length + " · " + FASES[fase] + " · Desafio " + (qi % 5 + 1) + "/5";
@@ -995,7 +1042,22 @@ function hud() {
   $("qbar").setAttribute("aria-valuenow", Math.round(v / q.n * 100));
   atualizarBotoesHistorico();
 }
-function anunciarSelecao() {
+function atualizarPreview(index = keyboardNav ? selected : hov) {
+  const box = $("actionPreview");
+  if (!box || !grade) return;
+  if (index < 0 || index >= grade.length) { box.textContent = "Selecione uma \u00e1rea para ver a a\u00e7\u00e3o e o custo."; return; }
+  const c = grade[index], row = Math.floor(index / N) + 1, col = index % N + 1;
+  let action;
+  if (demo) action = c.d >= 0 && !c.h && !c.bridge ? "Remover decoracao · sem custo de bloco" : c.bridge ? "Remover ponte · " + (preferencias.creative ? "sem custo de bloco" : "recupera 1 bloco") : c.h ? "Remover 1 andar · " + (preferencias.creative ? "perde 5 pontos" : "recupera 1 bloco e perde 5 pontos") : "Nada para remover aqui";
+  else if (decorMode) action = selectedDecor === 2 ? (c.h || c.bridge ? "Bloqueado: barcos s\u00f3 podem ficar na \u00e1gua" : "Colocar barco · sem custo") : c.bridge ? "Bloqueado: remova a ponte primeiro" : "Colocar " + DECORACOES[selectedDecor].toLowerCase() + " · sem custo";
+  else if (bridgeMode) action = ponteConectaCasas(index) ? (preferencias.creative || blocos > 0 ? "Construir ponte conectando as margens · custa 1 bloco" : "Sem blocos para construir a ponte") : "Ponte precisa de um v\u00e3o reto entre margens conectadas";
+  else if (c.bridge) action = "Bloqueado: n\u00e3o \u00e9 poss\u00edvel construir sobre uma ponte";
+  else if (c.h >= MAXH) action = "Limite atingido: m\u00e1ximo de " + MAXH + " andares";
+  else if (!preferencias.creative && blocos <= 0) action = "Sem blocos · conclua o desafio atual para receber mais";
+  else { const neighbors = viz(index).filter(v => grade[v].h > 0).length; action = (c.h ? "Empilhar andar " + (c.h + 1) : "Construir casa") + " · custa 1 bloco" + (preferencias.creative ? " (infinito)" : "") + (c.h ? " · +" + (5 + 3 * c.h) + " pontos" : " · +" + (10 + 5 * neighbors) + " pontos · modelo: " + MODELOS[selectedModel]); }
+  const message = "Linha " + row + ", coluna " + col + " — " + action;
+  if (box.textContent !== message) box.textContent = message;
+}function anunciarSelecao() {
   const x = selected % N, y = Math.floor(selected / N), c = grade[selected];
   const estado = c.bridge ? "ponte" : c.h ? c.h + (c.h === 1 ? " andar" : " andares") : "área livre";
   const modeName = demo ? "demolir" : bridgeMode ? "construir ponte" : "construir";
@@ -1035,6 +1097,7 @@ function modo(value) {
   $("bDemo").setAttribute("aria-pressed", String(demo));
   $("bDecor").setAttribute("aria-pressed", String(decorMode));
   anunciarSelecao();
+  atualizarPreview();
 }
 
 function prepararControlesCriativos() {
@@ -1172,8 +1235,9 @@ cv.addEventListener("pointermove", e => {
     return;
   }
   hov = pick(e);
+  atualizarPreview(hov);
 });
-cv.addEventListener("pointerleave", () => { if (!cameraDrag) { keyboardNav = false; hov = -1; } });
+cv.addEventListener("pointerleave", () => { if (!cameraDrag) { keyboardNav = false; hov = -1; atualizarPreview(-1); } });
 cv.addEventListener("wheel", e => {
   e.preventDefault();
   if (e.shiftKey) girarCamera(e.deltaY > 0 ? 1 : -1);
@@ -1220,6 +1284,10 @@ $("townSelect").addEventListener("change", () => { const item = ilhaSelecionada(
 $("townRename").addEventListener("click", () => { const item = ilhaSelecionada(), name = $("townName").value.trim(); if (!item || !name) return; const all = listarIlhas(), i = all.findIndex(x => x.id === item.id); all[i].name = name; localStorage.setItem("ilheu-towns", JSON.stringify(all)); preencherIlhas(); $("townSelect").value = item.id; });
 $("townDelete").addEventListener("click", () => { const item = ilhaSelecionada(); if (!item) return; localStorage.setItem("ilheu-towns", JSON.stringify(listarIlhas().filter(x => x.id !== item.id))); preencherIlhas(); });
 $("townExport").addEventListener("click", exportarIlha);
+$("townSaveExport").addEventListener("click", exportarSalvamento);
+$("townImport").addEventListener("click", () => $("townImportFile").click());
+$("townImportFile").addEventListener("change", e => importarSalvamento(e.target.files[0]));
+$("btnTutorialIntro").addEventListener("click", () => $("tutorialDialog").showModal());
 $("settingsDialog").addEventListener("cancel", e => {
   e.preventDefault();
   $("settingsDialog").close("escape");
@@ -1267,6 +1335,7 @@ $("bSom").addEventListener("click", () => {
 });
 document.addEventListener("keydown", e => {
   if (!$("jogo").classList.contains("on")) return;
+  if (document.querySelector("dialog[open]")) return;
   const k = e.key.toLowerCase();
   if ((e.ctrlKey || e.metaKey) && k === "y") { e.preventDefault(); refazer(); return; }
   if (k === "z" && !e.ctrlKey && !e.metaKey) { e.preventDefault(); desfazer(); return; }
@@ -1287,7 +1356,7 @@ document.addEventListener("keydown", e => {
     dx = Math.round(viewDx * Math.cos(angle) + viewDy * Math.sin(angle));
     dy = Math.round(-viewDx * Math.sin(angle) + viewDy * Math.cos(angle));
     selected = Math.max(0, Math.min(N - 1, x + dx)) + Math.max(0, Math.min(N - 1, y + dy)) * N;
-    keyboardNav = true; hov = -1; anunciarSelecao();
+    keyboardNav = true; hov = -1; anunciarSelecao(); atualizarPreview(selected);
   } else if (k === "enter" || k === " ") {
     e.preventDefault(); keyboardNav = true; agir(selected, demo);
     anunciarSelecao();

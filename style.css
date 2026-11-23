@@ -2127,3 +2127,27 @@ canvas {
     padding: 6px;
   }
 }
+.action-preview {
+  min-height: 38px;
+  margin: 8px 2px 0;
+  padding: 9px 12px;
+  border: 1px solid rgba(255,255,255,.7);
+  border-radius: 10px;
+  color: #174c53;
+  background: rgba(255,253,246,.96);
+  box-shadow: 0 3px 10px rgba(12,64,76,.12);
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.45;
+}
+.tutorial-steps { display: grid; gap: 12px; margin: 8px 0 18px; padding-left: 25px; }
+.tutorial-steps li { padding-left: 4px; }
+.tutorial-steps li::marker { color: #176d77; font-weight: 800; }
+.tutorial-steps li b, .tutorial-steps li span { display: block; }
+.tutorial-steps li span { margin-top: 3px; color: #527174; font-size: 14px; line-height: 1.5; }
+.tool { min-height: 48px; }
+@media (max-width: 640px) {
+  .action-preview { font-size: 12px; }
+  .intro-actions { display: grid; grid-template-columns: 1fr 1fr; }
+  .intro-actions .tool:last-child { grid-column: 1 / -1; }
+}

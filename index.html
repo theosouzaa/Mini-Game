@@ -65,7 +65,7 @@
               <path d="M5 5.5A9 9 0 1 1 3 12" />
               <path d="M3 5v5h5" />
             </svg>Continuar partida</button>
-          <div class="intro-actions"><button class="tool" id="btnIlhasIntro" type="button">Minhas ilhas</button><button class="tool" id="btnConquistasIntro" type="button">Conquistas</button></div>
+          <div class="intro-actions"><button class="tool" id="btnIlhasIntro" type="button">Minhas ilhas</button><button class="tool" id="btnConquistasIntro" type="button">Conquistas</button><button class="tool" id="btnTutorialIntro" type="button">Como jogar</button></div>
           <button class="settings-trigger intro-settings" id="btnSettingsIntro" type="button"
             aria-label="Abrir configurações" title="Configurações"><svg viewBox="0 0 24 24" aria-hidden="true">
               <circle cx="12" cy="12" r="3" />
@@ -122,6 +122,7 @@
           aria-keyshortcuts="ArrowUp ArrowDown ArrowLeft ArrowRight Enter Space D Z"></canvas>
         <p class="sr-only" id="boardHelp">A seleção começa no centro do tabuleiro. As casas existentes podem receber
           novos andares até o limite de sete.</p>
+        <p id="actionPreview" class="action-preview" role="status" aria-live="polite">Selecione uma area para ver a acao e o custo.</p>
         <div id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
       </div>
       <div class="tools" role="group" aria-label="Ferramentas da partida">
@@ -226,11 +227,24 @@
     <header class="settings-header"><h2 id="townsTitle">Minhas ilhas</h2><button class="settings-close" value="close" aria-label="Fechar">&times;</button></header>
     <label class="town-field">Nome da ilha<input id="townName" maxlength="40"></label>
     <label class="town-field">Ilhas salvas<select id="townSelect" size="4"></select></label>
-    <div class="town-actions"><button class="tool" id="townSave" type="button">Salvar</button><button class="tool" id="townLoad" type="button">Abrir</button><button class="tool" id="townRename" type="button">Renomear</button><button class="tool" id="townDelete" type="button">Excluir</button><button class="tool" id="townExport" type="button">Exportar PNG</button></div>
+    <div class="town-actions"><button class="tool" id="townSave" type="button">Salvar</button><button class="tool" id="townLoad" type="button">Abrir</button><button class="tool" id="townRename" type="button">Renomear</button><button class="tool" id="townDelete" type="button">Excluir</button><button class="tool" id="townExport" type="button">Exportar PNG</button><button class="tool" id="townSaveExport" type="button">Exportar salvamento</button><button class="tool" id="townImport" type="button">Importar salvamento</button><input id="townImportFile" type="file" accept="application/json,.json" hidden></div>
   </form></dialog>
   <dialog id="achievementsDialog" aria-labelledby="achievementsTitle"><form method="dialog" class="settings-panel">
     <header class="settings-header"><h2 id="achievementsTitle">Conquistas</h2><button class="settings-close" value="close" aria-label="Fechar">&times;</button></header><ul id="achievementList" class="achievement-list"></ul>
   </form></dialog>
+  <dialog id="tutorialDialog" aria-labelledby="tutorialTitle">
+    <form method="dialog" class="settings-panel">
+      <header class="settings-header"><h2 id="tutorialTitle">Como reconstruir sua ilha</h2><button class="settings-close" value="close" aria-label="Fechar tutorial">&times;</button></header>
+      <ol class="tutorial-steps">
+        <li><b>Construa com estrategia</b><span>Escolha modelo e cor nos controles, depois toque em Construir numa area livre. Cada nova casa custa 1 bloco; clique nela de novo para empilhar ate 7 andares.</span></li>
+        <li><b>Acompanhe os pedidos</b><span>Complete o desafio no painel acima do mapa para receber 6 blocos e 50 pontos. Casas conectadas contam como um bairro.</span></li>
+        <li><b>Decore e conecte</b><span>Decoracoes sao gratuitas. Use Ponte num vao reto entre duas margens para conectar partes da ilha.</span></li>
+        <li><b>Corrija sem medo</b><span>Desfazer (Z) e Refazer (Ctrl+Y) tambem ficam disponiveis depois de retomar a partida com salvamento automatico.</span></li>
+        <li><b>Jogue no celular</b><span>Toque para construir, use os botoes para trocar ferramenta e gire ou centralize a camera pelos controles abaixo do mapa.</span></li>
+      </ol>
+      <footer class="settings-footer"><button class="btn" type="submit" value="close">Entendi</button></footer>
+    </form>
+  </dialog>
   <script src="script.js"></script>
 </body>
 

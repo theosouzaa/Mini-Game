@@ -37,6 +37,8 @@
 
 Uma campanha de **60 desafios divididos em 12 fases** guia a reconstrução: cada pedido cumprido rende **+6 blocos** e **+50 pontos**, e cada bloco precisa ser bem planejado. Moradores passeiam pela ilha, enquanto o indicador de bem-estar responde às casas, árvores, flores, postes e pontes. Se preferir apenas criar, o **Modo livre** oferece blocos infinitos.
 
+O tutorial integrado apresenta construcao, desafios, decoracao, controles de toque e atalhos. A previa de acao informa custo e bloqueios; arquivos JSON permitem levar salvamentos para outro navegador.
+
 O projeto foi desenvolvido pelo **Maré Mansa Studio** e roda direto no navegador, sem instalação, sem frameworks e sem bibliotecas externas. Todo o visual isométrico é desenhado em tempo real em um `<canvas>`, e os efeitos sonoros e a trilha ambiente são sintetizados no código.
 
 ### Em números
@@ -59,7 +61,7 @@ Não é preciso instalar nada. O jogo roda direto no navegador.
 
 ```bash
 git clone https://github.com/theosouzaa/Mini-Game.git
-cd Mini-Game/MiniGamee
+cd Mini-Game
 ```
 
 Depois, abra o `index.html` com um duplo clique. Se preferir um servidor local:
@@ -120,13 +122,13 @@ python -m http.server 8000
 | <img src="https://api.iconify.design/lucide/route.svg?color=%234b9da2" width="22" alt=""> | **Modo Ponte** | Preencha o vão entre duas casas ou caminhos para criar uma passarela conectada |
 | <img src="https://api.iconify.design/lucide/trees.svg?color=%234b9da2" width="22" alt=""> | **Modo Decorar** | Árvore, poste de luz, barco (só na água), banco, flores, fonte, pedra e lanterna |
 | <img src="https://api.iconify.design/lucide/eraser.svg?color=%234b9da2" width="22" alt=""> | **Modo Demolir** | Remove um andar, uma ponte ou uma decoração e devolve o bloco |
-| <img src="https://api.iconify.design/lucide/undo-2.svg?color=%234b9da2" width="22" alt=""> | **Desfazer e refazer** | Volte ou reaplique ações recentes; o histórico vale durante a sessão atual |
+| <img src="https://api.iconify.design/lucide/undo-2.svg?color=%234b9da2" width="22" alt=""> | **Desfazer e refazer** | Volte ou reaplique até 12 ações; o histórico persiste no salvamento automático |
 
 ### <img src="https://api.iconify.design/lucide/trending-up.svg?color=%234b9da2" width="22" align="absmiddle" alt=""> Progressão
 
 | | Recurso | Detalhes |
 | :-: | ------- | -------- |
-| <img src="https://api.iconify.design/lucide/target.svg?color=%234b9da2" width="22" alt=""> | **Campanha** | 60 desafios em 12 fases, com metas de casas, bairros, torres, andares e pontes |
+| <img src="https://api.iconify.design/lucide/target.svg?color=%234b9da2" width="22" alt=""> | **Campanha** | 60 desafios em 12 fases, com metas de casas, bairros, torres, pontes, decoracao, modelos, cores e bem-estar |
 | <img src="https://api.iconify.design/lucide/star.svg?color=%234b9da2" width="22" alt=""> | **Avaliação** | Até 3 estrelas no final, com a melhor pontuação guardada |
 | <img src="https://api.iconify.design/lucide/trophy.svg?color=%234b9da2" width="22" alt=""> | **Conquistas** | 14 conquistas desbloqueáveis, cada uma com emblema SVG exclusivo e aviso sonoro na partida |
 | <img src="https://api.iconify.design/lucide/infinity.svg?color=%234b9da2" width="22" alt=""> | **Modo livre** | Blocos infinitos para criar sem se preocupar com recursos |
@@ -144,8 +146,9 @@ python -m http.server 8000
 
 | | Recurso | Detalhes |
 | :-: | ------- | -------- |
-| <img src="https://api.iconify.design/lucide/hard-drive.svg?color=%234b9da2" width="22" alt=""> | **Automático** | Progresso salvo no navegador, com botão **Continuar partida** |
-| <img src="https://api.iconify.design/lucide/image-down.svg?color=%234b9da2" width="22" alt=""> | **Minhas ilhas** | Salve até **8 vilarejos**, renomeie, reabra, exclua e **exporte a ilha como imagem PNG** |
+| <img src="https://api.iconify.design/lucide/hard-drive.svg?color=%234b9da2" width="22" alt=""> | **Automático** | Progresso e histórico de até 12 ações salvos no navegador, com botão **Continuar partida** |
+| <img src="https://api.iconify.design/lucide/image-down.svg?color=%234b9da2" width="22" alt=""> | **Minhas ilhas** | Salve até **8 vilarejos**, renomeie, reabra, exclua e exporte ilhas como PNG |
+| | **Backup portatil** | Exporte e importe salvamentos JSON validados pelo jogo |
 
 ### <img src="https://api.iconify.design/lucide/accessibility.svg?color=%234b9da2" width="22" align="absmiddle" alt=""> Acessibilidade
 
@@ -288,11 +291,10 @@ Os desafios variam entre construir casas, **unir casas num mesmo bairro** (conec
 
 ```text
 Mini-Game/
-├── docs/                  # Capturas de tela usadas neste README
-├── MiniGamee/
-│   ├── index.html         # Telas do jogo, painéis e diálogos
-│   ├── style.css          # Visual, cenário animado, responsividade e acessibilidade
-│   └── script.js          # Lógica, renderização no canvas, áudio e salvamento
+├── docs/        # Capturas de tela usadas neste README
+├── index.html   # Telas, painéis e diálogos
+├── style.css    # Visual, responsividade e acessibilidade
+├── script.js    # Lógica, renderização, áudio e salvamento
 └── README.md
 ```
 
@@ -300,10 +302,12 @@ Mini-Game/
 
 ## Ideias para o futuro
 
-- [ ] Novos modelos de casa e mais decorações
-- [ ] Mais fases e desafios para a campanha
-- [ ] Ciclo de dia e noite com os postes acendendo
-- [ ] Trilha sonora ambiente
+- [x] Novos modelos de casa e mais decorações
+- [x] Mais fases e desafios variados para a campanha
+- [x] Ciclo de dia e noite com os postes acendendo
+- [x] Trilha sonora ambiente
+- [x] Tutorial, dicas de ação e salvamentos portáteis
+- [ ] Testar em dispositivos móveis reais
 - [ ] Publicar o jogo online com GitHub Pages
 
 ---
