@@ -811,6 +811,27 @@ canvas:focus-visible {
   height: 19px;
 }
 
+.tool .ui-icon {
+  display: block;
+  flex: 0 0 19px;
+  width: 19px;
+  height: 19px;
+  overflow: visible;
+}
+
+.intro-actions .tool,
+#btnIlhasGame {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.camera-tool .ui-icon {
+  width: 18px;
+  height: 18px;
+}
+
 .end-mark svg {
   width: 27px;
   height: 27px;
@@ -1103,6 +1124,17 @@ dialog::backdrop {
   transition:
     background 0.16s,
     border-color 0.16s;
+}
+
+.setting-row select {
+  min-width: 112px;
+  min-height: 38px;
+  padding: 7px 9px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  color: var(--sea);
+  background: #fff;
+  font: inherit;
 }
 
 .setting-row input::before {

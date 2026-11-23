@@ -35,18 +35,18 @@
 
 **Ilhéu Colorido** é um jogo de construção casual, sem pressa e sem pressão. Você recebe alguns blocos, escolhe onde construir e vai erguendo casas, torres, pontes e jardins sobre um mapa de **19 × 19** células cercado pelo mar.
 
-Uma campanha de **30 desafios divididos em 6 fases** guia a reconstrução: cada pedido cumprido rende **+6 blocos** e **+50 pontos**, e cada bloco precisa ser bem planejado. Se preferir apenas criar, o **Modo livre** oferece blocos infinitos.
+Uma campanha de **60 desafios divididos em 12 fases** guia a reconstrução: cada pedido cumprido rende **+6 blocos** e **+50 pontos**, e cada bloco precisa ser bem planejado. Moradores passeiam pela ilha, enquanto o indicador de bem-estar responde às casas, árvores, flores, postes e pontes. Se preferir apenas criar, o **Modo livre** oferece blocos infinitos.
 
-O projeto foi desenvolvido pelo **Maré Mansa Studio** e roda direto no navegador, sem instalação, sem frameworks e sem bibliotecas externas. Todo o visual isométrico é desenhado em tempo real em um `<canvas>`, e até os efeitos sonoros são sintetizados no código.
+O projeto foi desenvolvido pelo **Maré Mansa Studio** e roda direto no navegador, sem instalação, sem frameworks e sem bibliotecas externas. Todo o visual isométrico é desenhado em tempo real em um `<canvas>`, e os efeitos sonoros e a trilha ambiente são sintetizados no código.
 
 ### Em números
 
 <table align="center">
   <tr>
     <td align="center" width="140"><img src="https://api.iconify.design/lucide/map.svg?color=%234b9da2" width="28" alt=""><br><b>19 × 19</b><br><sub>células no mapa</sub></td>
-    <td align="center" width="140"><img src="https://api.iconify.design/lucide/house.svg?color=%234b9da2" width="28" alt=""><br><b>17</b><br><sub>modelos de casa</sub></td>
+    <td align="center" width="140"><img src="https://api.iconify.design/lucide/house.svg?color=%234b9da2" width="28" alt=""><br><b>23</b><br><sub>modelos de casa</sub></td>
     <td align="center" width="140"><img src="https://api.iconify.design/lucide/palette.svg?color=%234b9da2" width="28" alt=""><br><b>12</b><br><sub>cores</sub></td>
-    <td align="center" width="140"><img src="https://api.iconify.design/lucide/target.svg?color=%234b9da2" width="28" alt=""><br><b>30</b><br><sub>desafios em 6 fases</sub></td>
+    <td align="center" width="140"><img src="https://api.iconify.design/lucide/target.svg?color=%234b9da2" width="28" alt=""><br><b>60</b><br><sub>desafios em 12 fases</sub></td>
     <td align="center" width="140"><img src="https://api.iconify.design/lucide/trophy.svg?color=%234b9da2" width="28" alt=""><br><b>6</b><br><sub>conquistas</sub></td>
   </tr>
 </table>
@@ -114,30 +114,31 @@ python -m http.server 8000
 
 | | Recurso | Detalhes |
 | :-: | ------- | -------- |
-| <img src="https://api.iconify.design/lucide/house.svg?color=%234b9da2" width="22" alt=""> | **17 modelos de casa** | Clássica, Torre, Chalé, Varanda, Sótão, Jardim, Pátio, Pavilhão, Rotunda, Farol, Casa de praia, Telhado verde, Coreto, Observatório, Telhado piramidal, Arcada e Escadaria |
+| <img src="https://api.iconify.design/lucide/house.svg?color=%234b9da2" width="22" alt=""> | **23 modelos de casa** | Inclui Moinho, Estufa, Pagode, Cabana, Casa-barco e Solar, além dos modelos originais |
 | <img src="https://api.iconify.design/lucide/palette.svg?color=%234b9da2" width="22" alt=""> | **12 cores** | Pêssego, Girassol, Menta, Brisa, Lavanda, Areia, Folha, Coral, Turquesa, Lilás, Concha e Oceano, ou cor aleatória, que evita repetir a cor das casas vizinhas |
 | <img src="https://api.iconify.design/lucide/layers.svg?color=%234b9da2" width="22" alt=""> | **Andares empilháveis** | Até **7 andares**, transformando casas em torres |
 | <img src="https://api.iconify.design/lucide/route.svg?color=%234b9da2" width="22" alt=""> | **Modo Ponte** | Preencha o vão entre duas casas ou caminhos para criar uma passarela conectada |
-| <img src="https://api.iconify.design/lucide/trees.svg?color=%234b9da2" width="22" alt=""> | **Modo Decorar** | Árvore, poste de luz, barco (só na água) e banco |
+| <img src="https://api.iconify.design/lucide/trees.svg?color=%234b9da2" width="22" alt=""> | **Modo Decorar** | Árvore, poste de luz, barco (só na água), banco, flores, fonte, pedra e lanterna |
 | <img src="https://api.iconify.design/lucide/eraser.svg?color=%234b9da2" width="22" alt=""> | **Modo Demolir** | Remove um andar, uma ponte ou uma decoração e devolve o bloco |
-| <img src="https://api.iconify.design/lucide/undo-2.svg?color=%234b9da2" width="22" alt=""> | **Desfazer** | Volta até as últimas 30 ações |
+| <img src="https://api.iconify.design/lucide/undo-2.svg?color=%234b9da2" width="22" alt=""> | **Desfazer e refazer** | Volte ou reaplique ações recentes; o histórico vale durante a sessão atual |
 
 ### <img src="https://api.iconify.design/lucide/trending-up.svg?color=%234b9da2" width="22" align="absmiddle" alt=""> Progressão
 
 | | Recurso | Detalhes |
 | :-: | ------- | -------- |
-| <img src="https://api.iconify.design/lucide/target.svg?color=%234b9da2" width="22" alt=""> | **Campanha** | 30 desafios em 6 fases: *Primeiros lares*, *Bairro unido*, *Ilha em expansão*, *Torres e caminhos*, *Comunidade viva* e *Ilha florescida* |
+| <img src="https://api.iconify.design/lucide/target.svg?color=%234b9da2" width="22" alt=""> | **Campanha** | 60 desafios em 12 fases, com metas de casas, bairros, torres, andares e pontes |
 | <img src="https://api.iconify.design/lucide/star.svg?color=%234b9da2" width="22" alt=""> | **Avaliação** | Até 3 estrelas no final, com a melhor pontuação guardada |
 | <img src="https://api.iconify.design/lucide/trophy.svg?color=%234b9da2" width="22" alt=""> | **Conquistas** | 6 conquistas desbloqueáveis |
 | <img src="https://api.iconify.design/lucide/infinity.svg?color=%234b9da2" width="22" alt=""> | **Modo livre** | Blocos infinitos para criar sem se preocupar com recursos |
+| <img src="https://api.iconify.design/lucide/users.svg?color=%234b9da2" width="22" alt=""> | **Moradores e bem-estar** | Pequenos moradores circulam entre as casas; o indicador considera casas e elementos de convivência |
 
 ### <img src="https://api.iconify.design/lucide/camera.svg?color=%234b9da2" width="22" align="absmiddle" alt=""> Câmera e visual
 
 | | Recurso | Detalhes |
 | :-: | ------- | -------- |
 | <img src="https://api.iconify.design/lucide/rotate-3d.svg?color=%234b9da2" width="22" alt=""> | **Câmera livre** | Rotação do mapa, zoom, movimentação e botão **Centralizar** |
-| <img src="https://api.iconify.design/lucide/waves.svg?color=%234b9da2" width="22" alt=""> | **Cenário animado** | Sol, nuvens, pássaros, ilhas distantes e ondas |
-| <img src="https://api.iconify.design/lucide/volume-2.svg?color=%234b9da2" width="22" alt=""> | **Áudio sintetizado** | Efeitos sonoros gerados por código, com controle de volume |
+| <img src="https://api.iconify.design/lucide/waves.svg?color=%234b9da2" width="22" alt=""> | **Cenário e clima** | Ciclo de dia e noite, escolha de dia/noite fixos, chuva, lua, estrelas, postes iluminados e velocidade das animações |
+| <img src="https://api.iconify.design/lucide/volume-2.svg?color=%234b9da2" width="22" alt=""> | **Áudio sintetizado** | Efeitos sonoros e trilha ambiente gerados por código, com controle de som, trilha e volume |
 
 ### <img src="https://api.iconify.design/lucide/save.svg?color=%234b9da2" width="22" align="absmiddle" alt=""> Salvamento
 
@@ -181,7 +182,7 @@ python -m http.server 8000
   </tr>
   <tr>
     <td align="center"><b>6</b></td>
-    <td>Use <b>Demolir</b> para remover um andar e recuperar o bloco. Se errou, use <b>Desfazer</b>.</td>
+    <td>Use <b>Demolir</b> para remover um andar e recuperar o bloco. Se errou, use <b>Desfazer</b> ou <b>Refazer</b>.</td>
   </tr>
   <tr>
     <td align="center"><b>7</b></td>
@@ -190,7 +191,7 @@ python -m http.server 8000
 </table>
 
 > [!IMPORTANT]
-> **Vitória:** conclua os 30 desafios. **Fim de jogo:** os blocos acabam antes disso.
+> **Vitória:** conclua os 60 desafios. **Fim de jogo:** os blocos acabam antes disso.
 
 ### Fluxo do jogo
 
@@ -199,7 +200,7 @@ flowchart LR
     A(["Começar a construir"]) --> B["Construir casas, andares,<br>pontes e decorações"]
     B --> C{"Desafio<br>cumprido?"}
     C -- Sim --> D["+6 blocos<br>+50 pontos"]
-    D --> E{"Completou os<br>30 desafios?"}
+    D --> E{"Completou os<br>60 desafios?"}
     E -- Sim --> F(["Um novo lar floresceu"])
     E -- Não --> B
     C -- Não --> G{"Ainda há<br>blocos?"}
@@ -218,12 +219,15 @@ flowchart LR
 | <img src="https://api.iconify.design/lucide/mouse-pointer-click.svg?color=%234b9da2" width="16" align="absmiddle" alt=""> Construir / empilhar andar | Clique ou toque na célula | <kbd>Enter</kbd> ou <kbd>Espaço</kbd> |
 | <img src="https://api.iconify.design/lucide/eraser.svg?color=%234b9da2" width="16" align="absmiddle" alt=""> Demolir | Botão direito (ou modo **Demolir**) | <kbd>D</kbd> alterna o modo Demolir |
 | <img src="https://api.iconify.design/lucide/undo-2.svg?color=%234b9da2" width="16" align="absmiddle" alt=""> Desfazer | Botão **Desfazer** | <kbd>Z</kbd> |
+| <img src="https://api.iconify.design/lucide/redo-2.svg?color=%234b9da2" width="16" align="absmiddle" alt=""> Refazer | Botão **Refazer** | <kbd>Ctrl</kbd> + <kbd>Y</kbd> |
 | <img src="https://api.iconify.design/lucide/move.svg?color=%234b9da2" width="16" align="absmiddle" alt=""> Navegar pelo tabuleiro | Passar o mouse | <kbd>←</kbd> <kbd>↑</kbd> <kbd>↓</kbd> <kbd>→</kbd> |
 | <img src="https://api.iconify.design/lucide/house.svg?color=%234b9da2" width="16" align="absmiddle" alt=""> Trocar modelo da casa | Menu **Modelo** | <kbd>M</kbd> |
 | <img src="https://api.iconify.design/lucide/rotate-3d.svg?color=%234b9da2" width="16" align="absmiddle" alt=""> Girar a câmera | Arrastar com o botão esquerdo, <kbd>Shift</kbd> + roda, ou botões ↶ ↷ | <kbd>Q</kbd> e <kbd>E</kbd> (15° por vez) |
 | <img src="https://api.iconify.design/lucide/hand.svg?color=%234b9da2" width="16" align="absmiddle" alt=""> Mover a câmera | <kbd>Alt</kbd> + arrastar, ou botão do meio | n/d |
 | <img src="https://api.iconify.design/lucide/zoom-in.svg?color=%234b9da2" width="16" align="absmiddle" alt=""> Zoom | Roda do mouse, ou botões **+** e **−** | n/d |
 | <img src="https://api.iconify.design/lucide/locate-fixed.svg?color=%234b9da2" width="16" align="absmiddle" alt=""> Centralizar a câmera | Botão **Centralizar** | n/d |
+
+O horário, clima e velocidade das animações podem ser ajustados em **Configurações**. A trilha ambiente também pode ser ligada ou desligada por lá.
 
 ---
 

@@ -35,23 +35,68 @@ const QUESTS = [
   { t: "Povoe a ilha com 45 casas", k: "cs", n: 45 },
   { t: "Conecte um bairro com 40 casas", k: "big", n: 40 },
   { t: "Some 180 andares na ilha", k: "fl", n: 180 },
-  { t: "Expanda a rede para 8 pontes", k: "bridges", n: 8 }
+  { t: "Expanda a rede para 8 pontes", k: "bridges", n: 8 },
+  { t: "Construa 50 casas", k: "cs", n: 50 },
+  { t: "Some 200 andares na ilha", k: "fl", n: 200 },
+  { t: "Una 45 casas num bairro", k: "big", n: 45 },
+  { t: "Erga 12 torres de 4 andares", k: "towers", n: 12 },
+  { t: "Construa 55 casas", k: "cs", n: 55 },
+  { t: "Ligue bairros com 10 pontes", k: "bridges", n: 10 },
+  { t: "Some 230 andares na ilha", k: "fl", n: 230 },
+  { t: "Una 50 casas num bairro", k: "big", n: 50 },
+  { t: "Erga 15 torres de 4 andares", k: "towers", n: 15 },
+  { t: "Construa 60 casas", k: "cs", n: 60 },
+  { t: "Some 260 andares na ilha", k: "fl", n: 260 },
+  { t: "Ligue bairros com 12 pontes", k: "bridges", n: 12 },
+  { t: "Una 55 casas num bairro", k: "big", n: 55 },
+  { t: "Erga 18 torres de 4 andares", k: "towers", n: 18 },
+  { t: "Construa 65 casas", k: "cs", n: 65 },
+  { t: "Some 290 andares na ilha", k: "fl", n: 290 },
+  { t: "Una 60 casas num bairro", k: "big", n: 60 },
+  { t: "Ligue bairros com 14 pontes", k: "bridges", n: 14 },
+  { t: "Erga 20 torres de 4 andares", k: "towers", n: 20 },
+  { t: "Construa 70 casas", k: "cs", n: 70 },
+  { t: "Some 320 andares na ilha", k: "fl", n: 320 },
+  { t: "Una 65 casas num bairro", k: "big", n: 65 },
+  { t: "Ligue bairros com 16 pontes", k: "bridges", n: 16 },
+  { t: "Erga 22 torres de 4 andares", k: "towers", n: 22 },
+  { t: "Construa 75 casas", k: "cs", n: 75 },
+  { t: "Some 350 andares na ilha", k: "fl", n: 350 },
+  { t: "Una 70 casas num bairro", k: "big", n: 70 },
+  { t: "Ligue bairros com 18 pontes", k: "bridges", n: 18 },
+  { t: "Erga 25 torres de 4 andares", k: "towers", n: 25 },
+  { t: "Celebre uma cidade com 80 casas", k: "cs", n: 80 }
 ];
-const FASES = ["Primeiros lares", "Bairro unido", "Ilha em expansão", "Torres e caminhos", "Comunidade viva", "Ilha florescida"];
+const FASES = ["Primeiros lares", "Bairro unido", "Ilha em expansão", "Torres e caminhos", "Comunidade viva", "Ilha florescida", "Costa viva", "Vila próspera", "Cidade-jardim", "Arquipélago", "Grande comunidade", "Lenda da ilha"];
 const $ = id => document.getElementById(id);
+const ICONOS = {
+  bridge: '<path d="M3 17c3-8 15-8 18 0M4 18h16M7 14v4m5-6v6m5-4v4"/>',
+  leaf: '<path d="M20 4c-8 0-14 4-14 11a5 5 0 0 0 5 5c7 0 9-8 9-16Z"/><path d="M4 21c3-5 6-8 11-11"/>',
+  zoomIn: '<circle cx="10.8" cy="10.8" r="6.8"/><path d="M16 16l5 5M10.8 7.5v6.6m-3.3-3.3h6.6"/>',
+  zoomOut: '<circle cx="10.8" cy="10.8" r="6.8"/><path d="M16 16l5 5M7.5 10.8h6.6"/>',
+  center: '<circle cx="12" cy="12" r="7"/><path d="M12 2v4m0 12v4M2 12h4m12 0h4M9 12h6m-3-3v6"/>',
+  rotateLeft: '<path d="M4 10V4m0 0h6M4 4l4 4a8 8 0 1 1-2 8"/>',
+  rotateRight: '<path d="M20 10V4m0 0h-6m6 0-4 4a8 8 0 1 0 2 8"/>',
+  island: '<path d="m3 17 4-5 3 3 4-7 7 9H3Z"/><path d="M7 20h10"/>',
+  trophy: '<path d="M8 4h8v5a4 4 0 0 1-8 0V4Zm0 2H4v2a4 4 0 0 0 4 4m8-6h4v2a4 4 0 0 1-4 4m-4 1v4m-4 3h12m-8-3h4"/>',
+  soundOn: '<path d="M3 9v6h4l5 4V5L7 9z"/><path d="M15 9a4 4 0 0 1 0 6m3-9a8 8 0 0 1 0 12"/>',
+  soundOff: '<path d="M3 9v6h4l5 4V5L7 9z"/><path d="m17 9 5 6m0-6-5 6"/>'
+};
+const iconSvg = (name) => '<svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">' + (ICONOS[name] || ICONOS.island) + '</svg>';
 const cv = $("cv"), ctx = cv.getContext("2d");
 const dpr = Math.min(window.devicePixelRatio || 1, 2);
 cv.width = W * dpr; cv.height = H * dpr;
 ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
-let grade, pts, blocos, qi, hist, som = true, demo = false, bridgeMode = false, over = true, hov = -1, floats = [], ac;
+let grade, pts, blocos, qi, hist, som = true, demo = false, bridgeMode = false, over = true, hov = -1, floats = [], ac, musicTimer = 0, musicStep = 0, redoHist = [];
 let selected = Math.floor(N / 2) * N + Math.floor(N / 2), keyboardNav = false, cameraDegrees = 0, cameraZoom = 1, cameraPanX = 0, cameraPanY = 0, selectedModel = 0, selectedColor = -1, selectedDecor = 0;
 let cameraDrag = null;
 let decorMode = false;
-const MODELOS = ["Clássica", "Torre", "Chalé", "Varanda", "Sótão", "Jardim", "Pátio", "Pavilhão", "Rotunda", "Farol", "Casa de praia", "Telhado verde", "Coreto", "Observatório", "Telhado piramidal", "Arcada", "Escadaria"];
-const MODELOS_PLANOS = new Set([1, 3, 5, 6, 7, 8, 9, 11, 12, 13, 15, 16]);
-const MODELOS_GABLE = new Set([0, 2, 4, 10]);
-const DECORACOES = ["Árvore", "Poste", "Barco", "Banco"];
+let nightAmount = 0;
+const MODELOS = ["Clássica", "Torre", "Chalé", "Varanda", "Sótão", "Jardim", "Pátio", "Pavilhão", "Rotunda", "Farol", "Casa de praia", "Telhado verde", "Coreto", "Observatório", "Telhado piramidal", "Arcada", "Escadaria", "Moinho", "Estufa", "Pagode", "Cabana", "Casa-barco", "Solar"];
+const MODELOS_PLANOS = new Set([1, 3, 5, 6, 7, 8, 9, 11, 12, 13, 15, 16, 18, 19, 21, 22]);
+const MODELOS_GABLE = new Set([0, 2, 4, 10, 17, 20]);
+const DECORACOES = ["Árvore", "Poste", "Barco", "Banco", "Flores", "Fonte", "Pedra", "Lanterna"];
 const CONQUISTAS = [
   { id: "lar", nome: "Primeiro lar", detalhe: "Construa a primeira casa", libera: s => s.cs >= 1 },
   { id: "arcos", nome: "Passagem antiga", detalhe: "Construa uma casa com arcada", libera: s => s.modelos.has(15) },
@@ -68,7 +113,11 @@ const PREFERENCIAS_PADRAO = {
   volume: 70,
   autosave: true,
   colorSafe: false,
-  creative: false
+  creative: false,
+  ambientMusic: true,
+  animationSpeed: 1,
+  timeMode: "cycle",
+  weather: "clear"
 };
 let preferencias = carregarPreferencias();
 
@@ -102,6 +151,10 @@ function aplicarPreferencias() {
   $("settingAutosave").checked = preferencias.autosave;
   $("settingColorSafe").checked = preferencias.colorSafe;
   $("settingCreative").checked = preferencias.creative;
+  const music = $("settingMusic"); if (music) music.checked = preferencias.ambientMusic;
+  if ($("settingTime")) $("settingTime").value = preferencias.timeMode;
+  if ($("settingWeather")) $("settingWeather").value = preferencias.weather;
+  if ($("settingSpeed")) $("settingSpeed").value = String(preferencias.animationSpeed);
   $("blocos").textContent = preferencias.creative ? "∞" : blocos;
   syncSoundButton();
   atualizarBotaoContinuar();
@@ -112,6 +165,7 @@ function atualizarPreferencia(chave, valor) {
   if (chave === "autosave" && !valor) apagarProgresso();
   else if (chave === "autosave" && valor && !over) salvarProgresso();
   aplicarPreferencias();
+  if (["ambientMusic", "sound", "volume"].includes(chave)) atualizarTrilha();
 }
 function restaurarPreferencias() {
   preferencias = { ...PREFERENCIAS_PADRAO };
@@ -333,12 +387,26 @@ function desenharDecoracao(x, y, d, z) {
     [[0, 0, "#4f9272"], [5, -7, "#71ad77"], [-5, -5, "#43856d"]].forEach(([dx, dy, color]) => { ctx.beginPath(); ctx.arc(trunk[0] + dx, trunk[1] + dy, 5, 0, Math.PI * 2); ctx.fillStyle = color; ctx.fill(); });
   } else if (d === 1) {
     const top = P(x + .5, y + .5, z + .85); linha(p, top, "#5c5550", 2);
-    ctx.beginPath(); ctx.arc(top[0], top[1], 4, 0, Math.PI * 2); ctx.fillStyle = "#ffe69a"; ctx.shadowColor = "#ffe69a"; ctx.shadowBlur = 10; ctx.fill(); ctx.shadowBlur = 0;
+    ctx.beginPath(); ctx.arc(top[0], top[1], 4, 0, Math.PI * 2); ctx.fillStyle = nightAmount > .12 ? "#ffe69a" : "#9a9b8d"; ctx.shadowColor = "#ffe69a"; ctx.shadowBlur = 10 * nightAmount; ctx.fill(); ctx.shadowBlur = 0;
   } else if (d === 2) {
     poly([P(x + .12, y + .34, z + .08), P(x + .88, y + .34, z + .08), P(x + .72, y + .68, z + .08), P(x + .28, y + .68, z + .08)], "#8b6045", "#f5d28c");
     linha(P(x + .5, y + .36, z + .1), P(x + .5, y + .62, z + .48), "#fff1c6", 2); linha(P(x + .5, y + .46, z + .42), P(x + .77, y + .53, z + .14), "#fff1c6", 1.5);
-  } else {
+  } else if (d === 3) {
     linha(P(x + .22, y + .4, z + .1), P(x + .78, y + .4, z + .1), "#916749", 3); linha(P(x + .25, y + .4, z + .1), P(x + .25, y + .62, z + .1), "#76533c", 2); linha(P(x + .75, y + .4, z + .1), P(x + .75, y + .62, z + .1), "#76533c", 2);
+  } else if (d === 4) {
+    [[-.13, -.08, "#ef8d9b"], [.13, -.08, "#f6d16c"], [0, .12, "#a881cf"]].forEach(([dx, dy, color]) => {
+      const bloom = P(x + .5 + dx, y + .5 + dy, z + .18);
+      ctx.beginPath(); ctx.arc(bloom[0], bloom[1], 3.5, 0, Math.PI * 2); ctx.fillStyle = color; ctx.fill();
+    });
+  } else if (d === 5) {
+    const base = P(x + .5, y + .5, z + .12);
+    ctx.beginPath(); ctx.ellipse(base[0], base[1], 10, 5, 0, 0, Math.PI * 2); ctx.fillStyle = "#78b7b0"; ctx.fill();
+    ctx.beginPath(); ctx.arc(base[0], base[1] - 4, 3, 0, Math.PI * 2); ctx.fillStyle = "#d8f4e9"; ctx.fill();
+  } else if (d === 6) {
+    poly([P(x + .25, y + .55, z + .08), P(x + .38, y + .28, z + .08), P(x + .68, y + .32, z + .08), P(x + .78, y + .58, z + .08), P(x + .55, y + .72, z + .08)], "#929b94", "#d1d3c5");
+  } else {
+    const top = P(x + .5, y + .5, z + .72); linha(p, top, "#664d39", 2);
+    ctx.beginPath(); ctx.arc(top[0], top[1], 5, 0, Math.PI * 2); ctx.fillStyle = "#ffe7a1"; ctx.shadowColor = "#ffd875"; ctx.shadowBlur = 12; ctx.fill(); ctx.shadowBlur = 0;
   }
 }
 
@@ -422,6 +490,22 @@ function celula(x, y, now) {
         linha(P(x + u, y + .28, z), P(x + u + .15, y + .28, z), "#f1d59a", 3);
         linha(P(x + u + .15, y + .28, z), P(x + u + .15, y + .28, z + .09), "#9a704c", 2);
       }
+    } else if (type === 18) {
+      for (let pane = 0; pane < 3; pane++) {
+        const px = .18 + pane * .25;
+        poly([P(x + px, y + .2, hz + .26), P(x + px + .16, y + .2, hz + .26), P(x + px + .16, y + .2, hz + .56), P(x + px, y + .2, hz + .56)], "rgba(143,210,204,.8)", "#f4f0d8");
+      }
+    } else if (type === 19) {
+      for (let tier = 0; tier < 3; tier++) {
+        const z = hz + .34 + tier * .22, spread = .4 - tier * .1;
+        poly([P(x + .5 - spread, y + .5, z), P(x + .5, y + .12, z + .12), P(x + .5 + spread, y + .5, z), P(x + .5, y + .88, z + .12)], tel, "#72543c");
+      }
+    } else if (type === 21) {
+      const hull = [P(x + .1, y + .58, hz + .04), P(x + .9, y + .58, hz + .04), P(x + .76, y + .82, hz + .04), P(x + .24, y + .82, hz + .04)];
+      poly(hull, "#8b6045", "#f5d28c");
+      poly([P(x + .22, y + .2, hz + .25), P(x + .78, y + .2, hz + .25), P(x + .78, y + .58, hz + .25), P(x + .22, y + .58, hz + .25)], "#a9d5d0", "#f4ead3");
+    } else if (type === 22) {
+      [[.2, .2], [.72, .2], [.2, .72], [.72, .72]].forEach(([px, py]) => box(x + px, y + py, .08, hz + .04, hz + .52, "#d8bd8a"));
     }
   } else {
     const q = beirais(x, y, type);
@@ -444,6 +528,11 @@ function celula(x, y, now) {
       ends.filter(face => face.depth > 1e-5 && (face.neighbor < 0 || grade[face.neighbor].h < c.h))
         .forEach(face => poly(face.points, sh(col, face.shade), sh(tel, .8)));
       if (type === 4) gables.filter(face => face.depth > 1e-5).forEach(face => poly(face.points, null, "rgba(255,255,255,.55)"));
+      if (type === 17) {
+        const mill = P(x + .5, y + .5, hz + roofHeight * .65);
+        linha([mill[0] - 11, mill[1] - 11], [mill[0] + 11, mill[1] + 11], "#f3e4c3", 3);
+        linha([mill[0] + 11, mill[1] - 11], [mill[0] - 11, mill[1] + 11], "#f3e4c3", 3);
+      }
     } else {
       const roofFaces = [
         { depth: cos + sin, points: [B, C, T], shade: .76 },
@@ -460,6 +549,8 @@ function celula(x, y, now) {
 
 function desenharFundo(now) {
   const time = preferencias.motion ? now / 1000 : 0;
+  const daylight = preferencias.timeMode === "day" ? 1 : preferencias.timeMode === "night" ? 0 : (1 + Math.cos(now / 180000 * Math.PI * 2)) / 2;
+  nightAmount = Math.pow(1 - daylight, 1.35);
   const sea = ctx.createLinearGradient(0, 0, 0, H);
   sea.addColorStop(0, "#8bd1d2");
   sea.addColorStop(.48, "#62b8c1");
@@ -491,6 +582,27 @@ function desenharFundo(now) {
   island(W * .93, H * .29, W * .2, H * .11, "rgba(48,119,108,.62)");
   island(W * .63, H * .2, W * .1, H * .035, "rgba(75,145,126,.34)");
 
+  if (nightAmount > .02) {
+    ctx.fillStyle = `rgba(14,25,57,${nightAmount * .62})`;
+    ctx.fillRect(0, 0, W, H);
+    const moonX = W * (.78 - .56 * ((now / 180000) % 1)), moonY = H * .16;
+    ctx.beginPath(); ctx.arc(moonX, moonY, 25, 0, Math.PI * 2); ctx.fillStyle = `rgba(255,244,198,${nightAmount * .9})`; ctx.fill();
+    for (let star = 0; star < 24; star++) {
+      const sx = (star * 197 + 53) % W, sy = (star * 83 + 31) % Math.floor(H * .42);
+      ctx.fillStyle = `rgba(255,255,224,${nightAmount * (.35 + (star % 4) * .12)})`;
+      ctx.fillRect(sx, sy, 2, 2);
+    }
+  }
+  if (preferencias.weather === "rain") {
+    ctx.save(); ctx.strokeStyle = "rgba(220,239,255,.4)"; ctx.lineWidth = 1;
+    const drift = (now / 30) % 30;
+    for (let drop = 0; drop < 90; drop++) {
+      const x = (drop * 113 + drift) % W, y = (drop * 71 + drift * 2) % H;
+      ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x - 4, y + 11); ctx.stroke();
+    }
+    ctx.restore();
+  }
+
   ctx.save();
   ctx.lineCap = "round";
   for (let row = 0; row < 13; row++) {
@@ -514,7 +626,7 @@ function desenhar(now) {
   requestAnimationFrame(desenhar);
   if (!$("jogo").classList.contains("on")) return;
   const animationTime = preferencias.motion ? now : 0;
-  desenharFundo(animationTime);
+  desenharFundo(now);
   poly([P(0, 0, 0), P(N, 0, 0), P(N, N, 0), P(0, N, 0)], "rgba(255,255,255,.10)");
   for (let x = 0; x < N; x++) for (let y = 0; y < N; y++) {
     const a = .04 + .05 * Math.sin(animationTime / 700 + x * .8 + y * .6);
@@ -526,6 +638,7 @@ function desenhar(now) {
     poly([P(x - s, y - s, 0), P(x + 1 + s, y - s, 0), P(x + 1 + s, y + 1 + s, 0), P(x - s, y + 1 + s, 0)], "rgba(255,255,255,.25)");
   });
   ordemProfundidade().forEach(i => celula(i % N, Math.floor(i / N), animationTime));
+  desenharMoradores(now);
   if ((hov >= 0 || keyboardNav) && !over) {
     const i = keyboardNav ? selected : hov;
     const x = i % N, y = Math.floor(i / N), h = grade[i].h;
@@ -550,6 +663,21 @@ function desenhar(now) {
   });
 }
 
+function desenharMoradores(now) {
+  const homes = [];
+  grade.forEach((cell, i) => { if (cell.h) homes.push([i % N + .5, Math.floor(i / N) + .5]); });
+  const count = Math.min(12, Math.floor(homes.length / 2));
+  for (let i = 0; i < count; i++) {
+    const from = homes[i % homes.length], to = homes[(i + 1) % homes.length];
+    const phase = preferencias.motion ? ((now * .000025 * preferencias.animationSpeed + i * .31) % 1) : .5;
+    const x = from[0] + (to[0] - from[0]) * phase, y = from[1] + (to[1] - from[1]) * phase;
+    const p = P(x, y, .28 + Math.sin(now / 220 + i) * .04);
+    ctx.beginPath(); ctx.ellipse(p[0], p[1] + 5, 4, 2, 0, 0, Math.PI * 2); ctx.fillStyle = "rgba(36,54,52,.3)"; ctx.fill();
+    ctx.beginPath(); ctx.arc(p[0], p[1] - 3, 2.5, 0, Math.PI * 2); ctx.fillStyle = ["#cf7558", "#527d9b", "#a17aab", "#c69a49"][i % 4]; ctx.fill();
+    ctx.beginPath(); ctx.moveTo(p[0], p[1]); ctx.lineTo(p[0], p[1] + 5); ctx.strokeStyle = "#f5e8cf"; ctx.lineWidth = 2; ctx.stroke();
+  }
+}
+
 function bip(f, d) {
   const volume = preferencias.volume / 100;
   if (!som || !preferencias.sound || volume <= 0) return;
@@ -561,6 +689,23 @@ function bip(f, d) {
     g.gain.exponentialRampToValueAtTime(.001, ac.currentTime + d);
     o.connect(g); g.connect(ac.destination); o.start(); o.stop(ac.currentTime + d + .02);
   } catch (e) { }
+}
+function atualizarTrilha() {
+  const ativa = preferencias.ambientMusic && preferencias.sound && preferencias.volume > 0 && $("jogo").classList.contains("on");
+  if (!ativa) { if (musicTimer) clearInterval(musicTimer); musicTimer = 0; return; }
+  if (musicTimer) return;
+  try {
+    ac = ac || new (window.AudioContext || window.webkitAudioContext)();
+    if (ac.state === "suspended") ac.resume();
+    const notes = [261.63, 329.63, 392, 329.63, 293.66, 349.23, 440, 349.23, 261.63, 329.63, 392, 523.25, 440, 392, 329.63, 293.66];
+    const tocar = () => {
+      const osc = ac.createOscillator(), gain = ac.createGain(), start = ac.currentTime;
+      osc.type = "sine"; osc.frequency.value = notes[musicStep++ % notes.length];
+      gain.gain.setValueAtTime(0.0001, start); gain.gain.linearRampToValueAtTime(.025 * preferencias.volume / 100, start + .18); gain.gain.exponentialRampToValueAtTime(.0001, start + 1.25);
+      osc.connect(gain); gain.connect(ac.destination); osc.start(start); osc.stop(start + 1.3);
+    };
+    tocar(); musicTimer = setInterval(tocar, 1250);
+  } catch (e) { musicTimer = 0; }
 }
 function melhor(n) {
   let b = 0;
@@ -593,7 +738,9 @@ function stats() {
     }
     big = Math.max(big, houses);
   });
-  return { cs, fl, mx, big, towers, bridges, arvores, cores: cores.size, modelos };
+  const postes = grade.filter(c => c.d === 1).length, flores = grade.filter(c => c.d === 4).length;
+  const felicidade = cs ? Math.min(100, 35 + Math.min(cs, 12) * 2 + Math.min(arvores, 6) * 5 + Math.min(flores, 8) * 2 + Math.min(postes, 5) * 2 + Math.min(bridges, 5) * 2) : 0;
+  return { cs, fl, mx, big, towers, bridges, arvores, postes, flores, felicidade, cores: cores.size, modelos };
 }
 function checarConquistas() {
   let liberadas = [];
@@ -641,20 +788,34 @@ function aviso(t) {
 }
 function syncSoundButton() {
   const button = $("bSom");
-  button.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9v6h4l5 4V5L7 9z"/>' + (som ? '<path d="M15 9a4 4 0 0 1 0 6m3-9a8 8 0 0 1 0 12"/>' : '<path d="m17 9 5 6m0-6-5 6"/>') + '</svg><span class="sound-label">' + (som ? 'Som ligado' : 'Som desligado') + '</span>';
+  button.innerHTML = iconSvg(som ? "soundOn" : "soundOff") + '<span class="sound-label">' + (som ? 'Som ligado' : 'Som desligado') + '</span>';
   button.setAttribute("aria-label", som ? "Desativar som" : "Ativar som");
   button.setAttribute("aria-pressed", String(som));
 }
 function salvar() {
   hist.push({ g: grade.map(c => [c.h, c.c, c.t, c.r, !!c.bridge, c.d]), pts, blocos, qi });
   if (hist.length > 30) hist.shift();
+  redoHist = [];
 }
 function desfazer() {
   if (over || !hist.length) return;
+  redoHist.push({ g: grade.map(c => [c.h, c.c, c.t, c.r, !!c.bridge, c.d]), pts, blocos, qi });
   const u = hist.pop();
   u.g.forEach((a, i) => { grade[i].h = a[0]; grade[i].c = a[1]; grade[i].t = a[2]; grade[i].r = a[3]; grade[i].bridge = !!a[4]; grade[i].d = a[5] ?? -1; grade[i].born = 0; });
   pts = u.pts; blocos = u.blocos; qi = u.qi;
-  bip(260, .15); hud(); salvarProgresso();
+  bip(260, .15); hud(); atualizarBotoesHistorico(); salvarProgresso();
+}
+function refazer() {
+  if (over || !redoHist.length) return;
+  hist.push({ g: grade.map(c => [c.h, c.c, c.t, c.r, !!c.bridge, c.d]), pts, blocos, qi });
+  const u = redoHist.pop();
+  u.g.forEach((a, i) => { grade[i].h = a[0]; grade[i].c = a[1]; grade[i].t = a[2]; grade[i].r = a[3]; grade[i].bridge = !!a[4]; grade[i].d = a[5] ?? -1; grade[i].born = 0; });
+  pts = u.pts; blocos = u.blocos; qi = u.qi;
+  bip(380, .15); hud(); atualizarBotoesHistorico(); salvarProgresso();
+}
+function atualizarBotoesHistorico() {
+  $("bUndo").disabled = !hist.length || over;
+  const redo = $("bRedo"); if (redo) redo.disabled = !redoHist.length || over;
 }
 
 function iniciar(retomar = false) {
@@ -662,7 +823,7 @@ function iniciar(retomar = false) {
   if (retomar && !save) return iniciar(false);
   if (!retomar) apagarProgresso();
   grade = Array.from({ length: N * N }, () => ({ h: 0, c: 0, t: 0, r: 0, bridge: false, d: -1, born: 0 }));
-  pts = 0; blocos = BLOCOS; qi = 0; hist = []; floats = []; over = false; demo = false; bridgeMode = false;
+  pts = 0; blocos = BLOCOS; qi = 0; hist = []; redoHist = []; floats = []; over = false; demo = false; bridgeMode = false;
   cameraDegrees = save ? save.rotation : 0;
   cameraZoom = save ? save.zoom : 1; cameraPanX = save ? save.panX : 0; cameraPanY = save ? save.panY : 0;
   if ($("mapSize")) $("mapSize").textContent = N + " × " + N;
@@ -675,7 +836,7 @@ function iniciar(retomar = false) {
   $("tip").textContent = "Empilhe e conecte casas · Ponte liga duas margens alinhadas · M muda o modelo · escolha a cor nos controles · Q/E gira a câmera · Z desfaz";
   selected = Math.floor(N / 2) * N + Math.floor(N / 2); keyboardNav = false;
   syncSoundButton();
-  hud(); tela("jogo"); cv.focus(); atualizarBotaoContinuar();
+  hud(); tela("jogo"); cv.focus(); atualizarBotaoContinuar(); atualizarTrilha();
   anunciarSelecao();
 }
 function tela(id) {
@@ -742,18 +903,19 @@ function fim(vitoria) {
   const estrelas = vitoria ? 3 : Math.min(2, Math.floor(qi / 3));
   $("fimStars").innerHTML = Array.from({ length: 3 }, (_, i) => '<span class="' + (i < estrelas ? "" : "off") + '" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m12 2.7 2.8 5.7 6.3.9-4.6 4.5 1.1 6.4-5.6-3-5.6 3 1.1-6.4-4.6-4.5 6.3-.9z"/></svg></span>').join("");
   $("fimStars").setAttribute("aria-label", estrelas + " de 3 estrelas");
-  tela("fim");
+  tela("fim"); atualizarTrilha();
 }
 function hud() {
   const s = stats();
   $("pts").textContent = pts; $("blocos").textContent = preferencias.creative ? "∞" : blocos; $("casas").textContent = s.cs;
+  $("happiness").textContent = s.felicidade + "%";
   const q = QUESTS[Math.min(qi, QUESTS.length - 1)], v = Math.min(q.n, s[q.k]);
   const fase = Math.min(Math.floor(qi / 5), FASES.length - 1);
   $("qn").textContent = "Fase " + (fase + 1) + "/" + FASES.length + " · " + FASES[fase] + " · Desafio " + (qi % 5 + 1) + "/5";
   $("qtxt").textContent = q.t; $("qnum").textContent = v + " / " + q.n;
   $("qfill").style.width = (v / q.n * 100) + "%";
   $("qbar").setAttribute("aria-valuenow", Math.round(v / q.n * 100));
-  $("bUndo").disabled = !hist.length || over;
+  atualizarBotoesHistorico();
 }
 function anunciarSelecao() {
   const x = selected % N, y = Math.floor(selected / N), c = grade[selected];
@@ -798,6 +960,9 @@ function modo(value) {
 }
 
 function prepararControlesCriativos() {
+  $("btnIlhasIntro").innerHTML = iconSvg("island") + "<span>Minhas ilhas</span>";
+  $("btnConquistasIntro").innerHTML = iconSvg("trophy") + "<span>Conquistas</span>";
+  $("btnIlhasGame").innerHTML = iconSvg("island") + "<span>Minhas ilhas</span>";
   const toolbar = document.querySelector("#jogo .tools");
   if (!toolbar) return;
   const ponteAntiga = $("bBridge");
@@ -805,9 +970,9 @@ function prepararControlesCriativos() {
   const ponte = document.createElement("button");
   ponte.type = "button"; ponte.id = "bBridge"; ponte.className = "tool";
   ponte.setAttribute("aria-pressed", "false");
-  ponte.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 16c3-8 15-8 18 0M4 17h16M6 13l-2-2m6-2-1-3m7 3 1-3m1 7 3-2M8 16v3m8-3v3"/></svg><span>Ponte</span>';
+  ponte.innerHTML = iconSvg("bridge") + '<span>Ponte</span>';
   toolbar.insertBefore(ponte, $("bDemo"));
-  const decor = document.createElement("button"); decor.type = "button"; decor.id = "bDecor"; decor.className = "tool"; decor.setAttribute("aria-pressed", "false"); decor.innerHTML = '<span aria-hidden="true">🌿</span> Decorar';
+  const decor = document.createElement("button"); decor.type = "button"; decor.id = "bDecor"; decor.className = "tool"; decor.setAttribute("aria-pressed", "false"); decor.innerHTML = iconSvg("leaf") + '<span>Decorar</span>';
   toolbar.insertBefore(decor, $("bDemo"));
   const decorPicker = document.createElement("label"); decorPicker.className = "model-picker"; decorPicker.innerHTML = '<span>Decoração</span><select id="decorPicker" aria-label="Escolha decoração"></select>';
   DECORACOES.forEach((nome, i) => decorPicker.querySelector("select").add(new Option(nome, String(i))));
@@ -848,7 +1013,7 @@ function prepararControlesCriativos() {
   const camera = document.createElement("div");
   camera.className = "map-controls"; camera.id = "mapControls";
   camera.setAttribute("role", "group"); camera.setAttribute("aria-label", "Controles da câmera");
-  camera.innerHTML = '<span class="map-size">Mapa <b id="mapSize">' + N + ' × ' + N + '</b></span><span class="camera-direction" id="cameraDirection" aria-live="polite">Vista 0°</span><button class="tool camera-tool" id="bZoomOut" type="button" aria-label="Diminuir zoom">−</button><button class="tool camera-tool" id="bZoomIn" type="button" aria-label="Aumentar zoom">+</button><button class="tool camera-tool" id="bResetView" type="button" aria-label="Centralizar câmera">Centralizar</button><button class="tool camera-tool" id="bRotateLeft" type="button" aria-label="Girar mapa 15 graus para a esquerda" title="Girar 15° à esquerda (Q)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10V4m0 0h6M4 4l4 4a8 8 0 1 1-2 8"/></svg><span>↶ 15°</span></button><button class="tool camera-tool" id="bRotateRight" type="button" aria-label="Girar mapa 15 graus para a direita" title="Girar 15° à direita (E)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 10V4m0 0h-6m6 0-4 4a8 8 0 1 0 2 8"/></svg><span>↷ 15°</span></button>';
+  camera.innerHTML = '<span class="map-size">Mapa <b id="mapSize">' + N + ' × ' + N + '</b></span><span class="camera-direction" id="cameraDirection" aria-live="polite">Vista 0°</span><button class="tool camera-tool" id="bZoomOut" type="button" aria-label="Diminuir zoom">' + iconSvg("zoomOut") + '</button><button class="tool camera-tool" id="bZoomIn" type="button" aria-label="Aumentar zoom">' + iconSvg("zoomIn") + '</button><button class="tool camera-tool" id="bResetView" type="button" aria-label="Centralizar câmera">' + iconSvg("center") + '<span>Centralizar</span></button><button class="tool camera-tool" id="bRotateLeft" type="button" aria-label="Girar mapa 15 graus para a esquerda" title="Girar 15° à esquerda (Q)">' + iconSvg("rotateLeft") + '<span>15°</span></button><button class="tool camera-tool" id="bRotateRight" type="button" aria-label="Girar mapa 15 graus para a direita" title="Girar 15° à direita (E)">' + iconSvg("rotateRight") + '<span>15°</span></button>';
   toolbar.parentNode.insertBefore(camera, toolbar);
 
   const creativeInput = $("settingCreative");
@@ -858,6 +1023,19 @@ function prepararControlesCriativos() {
     row.className = "setting-row"; row.htmlFor = "settingCreative";
     row.innerHTML = '<span><b>Modo livre</b><small>Blocos infinitos e espaço para criar sem objetivos</small></span><input id="settingCreative" type="checkbox" role="switch">';
     creativeGroup.appendChild(row);
+    const musicRow = document.createElement("label");
+    musicRow.className = "setting-row"; musicRow.htmlFor = "settingMusic";
+    musicRow.innerHTML = '<span><b>Trilha ambiente</b><small>Toca uma melodia suave durante a partida</small></span><input id="settingMusic" type="checkbox" role="switch">';
+    creativeGroup.appendChild(musicRow);
+    const visualRow = document.createElement("label");
+    visualRow.className = "setting-row"; visualRow.innerHTML = '<span><b>Horário</b><small>Ciclo, dia ou noite</small></span><select id="settingTime"><option value="cycle">Ciclo</option><option value="day">Dia</option><option value="night">Noite</option></select>';
+    creativeGroup.appendChild(visualRow);
+    const weatherRow = document.createElement("label");
+    weatherRow.className = "setting-row"; weatherRow.innerHTML = '<span><b>Clima</b><small>Altera o cenário</small></span><select id="settingWeather"><option value="clear">Ensolarado</option><option value="rain">Chuva</option></select>';
+    creativeGroup.appendChild(weatherRow);
+    const speedRow = document.createElement("label");
+    speedRow.className = "setting-row"; speedRow.innerHTML = '<span><b>Velocidade das animações</b><small>Ajusta o ritmo visual</small></span><select id="settingSpeed"><option value="0.5">Lenta</option><option value="1">Normal</option><option value="2">Rápida</option></select>';
+    creativeGroup.appendChild(speedRow);
   }
 }
 
@@ -940,7 +1118,6 @@ cv.addEventListener("pointerup", e => {
   const wasDragging = cameraDrag.dragging;
   cameraDrag = null;
   cv.classList.remove("camera-dragging");
-  if (!wasDragging) return;
   if (wasDragging) {
     salvarProgresso();
     hov = -1;
@@ -984,6 +1161,10 @@ $("settingCreative").addEventListener("change", e => {
   atualizarPreferencia("creative", e.target.checked);
   if (!e.target.checked && !over && blocos === 0) verificar();
 });
+$("settingMusic").addEventListener("change", e => atualizarPreferencia("ambientMusic", e.target.checked));
+$("settingTime").addEventListener("change", e => atualizarPreferencia("timeMode", e.target.value));
+$("settingWeather").addEventListener("change", e => atualizarPreferencia("weather", e.target.value));
+$("settingSpeed").addEventListener("change", e => atualizarPreferencia("animationSpeed", Number(e.target.value)));
 $("settingColorSafe").addEventListener("change", e => atualizarPreferencia("colorSafe", e.target.checked));
 $("settingVolume").addEventListener("input", e => { $("volumeValue").value = e.target.value + "%"; });
 $("settingVolume").addEventListener("change", e => atualizarPreferencia("volume", Number(e.target.value)));
@@ -1001,12 +1182,14 @@ $("bZoomOut").addEventListener("click", () => atualizarZoom(-.1));
 $("bZoomIn").addEventListener("click", () => atualizarZoom(.1));
 $("bResetView").addEventListener("click", resetarCamera);
 $("bUndo").addEventListener("click", desfazer);
+$("bRedo").addEventListener("click", refazer);
 $("bSom").addEventListener("click", () => {
   atualizarPreferencia("sound", !preferencias.sound);
 });
 document.addEventListener("keydown", e => {
   if (!$("jogo").classList.contains("on")) return;
   const k = e.key.toLowerCase();
+  if ((e.ctrlKey || e.metaKey) && k === "y") { e.preventDefault(); refazer(); return; }
   if (k === "z" && !e.ctrlKey && !e.metaKey) { e.preventDefault(); desfazer(); return; }
   if (k === "d") { e.preventDefault(); modo(!demo); return; }
   if (document.activeElement !== cv && document.activeElement !== document.body) return;
